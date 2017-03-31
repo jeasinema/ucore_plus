@@ -19,9 +19,9 @@
 
 #define false	(0)
 
-/* 
+/*
    vmm design include two parts: mm_struct (mm) & vma_struct (vma)
-   mm is the memory manager for the set of continuous virtual memory  
+   mm is the memory manager for the set of continuous virtual memory
    area which have the same PDT. vma is a continuous virtual memory area.
    There a linear link list for vma & a redblack link list for vma in mm.
    ---------------
@@ -38,7 +38,7 @@
    struct vma_struct * find_vma(struct mm_struct *mm, uintptr_t addr)
    local functions
    inline void check_vma_overlap(struct vma_struct *prev, struct vma_struct *next)
-   inline struct vma_struct * find_vma_rb(rb_tree *tree, uintptr_t addr) 
+   inline struct vma_struct * find_vma_rb(rb_tree *tree, uintptr_t addr)
    inline void insert_vma_rb(rb_tree *tree, struct vma_struct *vma, ....
    inline int vma_compare(rb_node *node1, rb_node *node2)
    ---------------
@@ -51,7 +51,6 @@
 #ifndef UCONFIG_HEAP_SLOB
 #define __CHECK_MEMORY_LEAK() do{ \
   assert(nr_used_pages_store == nr_used_pages());   \
-  assert(slab_allocated_store == slab_allocated()); \
   }while(0);
 
 #else
@@ -164,7 +163,7 @@ static inline struct vma_struct *find_vma_rb(rb_tree * tree, uintptr_t addr)
 		}
 	}
 #if 0
-    if (vma!=NULL) 
+    if (vma!=NULL)
       kprintf("  find_vma_rb end:: addr %d, vma %x, start %d, end %d\n",addr, vma, vma->vm_start, vma->vm_end);
     else
       kprintf("  find_vma_rb end:: vma is NULL\n");
@@ -235,9 +234,7 @@ void vma_mapfile(struct vma_struct *vma, int fd, off_t off, struct fs_struct *fs
 		fs_struct = current->fs_struct;
 	}
 
-	/*
-	   kprintf("mapfile:0x%08x fs_struct:0x%08x\n", vma->mfile.file, fs_struct);
-	 */
+	//kprintf("mapfile:0x%08x fs_struct:0x%08x off:%d\n", vma->mfile.file, fs_struct, off);
 
 	vma->mfile.offset = off;
 	assert(vma != NULL);
@@ -735,14 +732,17 @@ user_mem_check(struct mm_struct * mm, uintptr_t addr, size_t len, bool write)
 		}
 		return 1;
 	}
-	return KERN_ACCESS(addr, addr + len);
+  //TODO: Always returning 1 when mm is not loaded allows a much simplier
+  //implementation of map_ph for load_icode, but I'm not sure if it doesn't
+  //lead to security issues.
+  return 1;
+	//return KERN_ACCESS(addr, addr + len);
 }
 
 // check_vmm - check correctness of vmm
 static void check_vmm(void)
 {
 	size_t nr_used_pages_store = nr_used_pages();
-	size_t slab_allocated_store = slab_allocated();
 
 	check_vma_struct();
 	check_pgfault();
@@ -755,7 +755,6 @@ static void check_vmm(void)
 static void check_vma_struct(void)
 {
 	size_t nr_used_pages_store = nr_used_pages();
-	size_t slab_allocated_store = slab_allocated();
 
 	struct mm_struct *mm = mm_create();
 	assert(mm != NULL);
@@ -820,7 +819,6 @@ static void check_pgfault(void)
 #ifdef UCONFIG_CHECK_PGFAULT
 	kprintf("starting check_pgfault()\n");
 	size_t nr_used_pages_store = nr_used_pages();
-	size_t slab_allocated_store = slab_allocated();
 
 	check_mm_struct = mm_create();
 	assert(check_mm_struct != NULL);
@@ -862,7 +860,6 @@ static void check_pgfault(void)
 	check_mm_struct = NULL;
 
 	assert(nr_used_pages_store == nr_used_pages());
-	assert(slab_allocated_store == slab_allocated());
 
 	kprintf("check_pgfault() succeeded!\n");
 #endif
@@ -894,8 +891,8 @@ int do_pgfault(struct mm_struct *mm, machine_word_t error_code, uintptr_t addr)
 {
 	if (mm == NULL) {
 		assert(current != NULL);
-		/* Chen Yuheng 
-		 * give handler a chance to deal with it 
+		/* Chen Yuheng
+		 * give handler a chance to deal with it
 		 */
 		kprintf
 		    ("page fault in kernel thread: pid = %d, name = %s, %d %08x.\n",
@@ -1063,7 +1060,7 @@ int do_pgfault(struct mm_struct *mm, machine_word_t error_code, uintptr_t addr)
 #endif
 			}
 		}
-	} else {		//a present page, handle copy-on-write (cow) 
+	} else {		//a present page, handle copy-on-write (cow)
 		struct Page *page, *newpage = NULL;
 		bool cow =
 		    ((vma->vm_flags & (VM_SHARE | VM_WRITE)) == VM_WRITE),
