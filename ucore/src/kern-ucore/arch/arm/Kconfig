@@ -83,6 +83,11 @@ config BOOTLOADER_START_ADDR
   hex "Bootloader start address"
   default 0x0
 
+config ZYNQ_USB
+depends ARM_BOARD_ZEDBOARD 
+bool "USB Support for ZYNQ"
+default n
+
 endmenu
 
 source src/kern-ucore/numa/Kconfig

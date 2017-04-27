@@ -170,3 +170,12 @@ void free(void *ap)
 	free_locked(ap);
 	unlock_malloc();
 }
+
+// add by jeasinema@20170426
+void *calloc(size_t num, size_t size)
+{
+    void *ret;
+    ret = malloc(num*size);
+    memset(ret, 0, num*size);
+    return ret;
+}

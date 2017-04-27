@@ -17,7 +17,7 @@
 /** **implement**
 	*************
 	serial_init()
-	serial_puts()
+	serial_kprintf()
 	serial_putc()
 	serial_getc()
 */
@@ -167,7 +167,7 @@ void serial_putc(int c) {
 }
 
 /* put string via serial port */
-void serial_puts(const char * s) {
+void serial_kprintf(const char * s) {
 	while(* s) {
 		serial_putc(* s ++);
 	}

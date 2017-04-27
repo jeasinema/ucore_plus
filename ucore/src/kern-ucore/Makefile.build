@@ -13,6 +13,8 @@ TARGET_CFLAGS += -pg
 endif
 
 TARGET_LDFLAGS += $(shell echo $(UCONFIG_ADDITIONAL_LDFLAGS))
+TARGET_LDFLAGS += -L$(KTREE)
+TARGET_LDFLAGS += -lulib
 
 KTREE_OBJ_ROOT := $(OBJPATH_ROOT)/kernel
 
@@ -27,6 +29,9 @@ KERN_INCLUDES += module/include
 endif
 
 TARGET_CFLAGS += $(addprefix -I$(KTREE)/, $(KERN_INCLUDES))
+#TODO: add by jeasinema@20170426
+TARGET_CFLAGS += $(addprefix -include $(KTREE)/arch/$(ARCH)/, mach-zedboard/zynq-common.h)
+TARGET_CFLAGS += $(addprefix -include $(KTREE)/arch/$(ARCH)/, mach-zedboard/zynq_thinpadng.h)
 
 TARGET_CFLAGS += -include $(KCONFIG_AUTOHEADER)
 ifneq ($(UCORE_TEST),)

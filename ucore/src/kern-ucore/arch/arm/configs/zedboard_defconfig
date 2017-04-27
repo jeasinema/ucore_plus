@@ -71,3 +71,6 @@ SFS_MINIMAL_CONTENT=y
 # Linux Device Driver Environment 3.6
 #
 # HAVE_LINUX_DDE36_BASE is not set
+
+# Additional Drivers
+ZYNQ_USB=y

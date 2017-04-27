@@ -64,7 +64,6 @@ void board_init()
     else
         serial_init_remap_irq(PER_IRQ_BASE_NONE_SPI + ZEDBOARD_UART0_IRQ, port);
 
-    kprintf("zedboard init finished\n");
 }
 
 /* no nand */

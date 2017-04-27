@@ -22,14 +22,18 @@ SEDFLAGS	= s/TEXT_START/$(UCONFIG_KERNEL_BASE)/
 
 LIBGCC := $(shell $(TARGET_CC) --print-file-name=libgcc.a)
 
+#TODO: add by jeasinema@20170426
+ULIB := $(KTREE)/libulib.a
+
 ifdef UCONFIG_HAVE_LINUX_DDE36_BASE
 DDELIB := $(TOPLEVEL_DIR)/build/lib/dde
 DRIVERS_O := $(DDELIB)/drivers.o
 endif
 
+#TODO
 $(KERNEL_ELF) : $(LINK_FILE) $(KERNEL_BUILTIN) $(RAMDISK_OBJ) $(DRIVERS_O)
 	@echo Linking uCore
-	$(Q)$(TARGET_LD) -T $(LINK_FILE) $(KERNEL_BUILTIN) $(RAMDISK_OBJ) $(DRIVERS_O) $(LIBGCC) -o $@
+	$(Q)$(TARGET_LD) $(TARGET_LDFLAGS) -T $(LINK_FILE) $(KERNEL_BUILTIN) $(RAMDISK_OBJ) $(DRIVERS_O) $(LIBGCC) $(ULIB) -o $@
 
 $(KERNEL_UIMAGE) : $(KERNEL_ELF)
 	@echo Making uImage
