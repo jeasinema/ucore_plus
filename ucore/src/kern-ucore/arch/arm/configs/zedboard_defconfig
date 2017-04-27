@@ -71,3 +71,8 @@ SFS_MINIMAL_CONTENT=y
 # Linux Device Driver Environment 3.6
 #
 # HAVE_LINUX_DDE36_BASE is not set
+
+#
+# Board specific
+CONSOLE_ZYNQ_UART=0
+

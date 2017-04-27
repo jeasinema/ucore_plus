@@ -83,6 +83,11 @@ config BOOTLOADER_START_ADDR
   hex "Bootloader start address"
   default 0x0
 
+config CONSOLE_ZYNQ_UART
+  depends ARM_BOARD_ZEDBOARD
+  int "Choose an UART as default console"
+  default 0
+
 endmenu
 
 source src/kern-ucore/numa/Kconfig
