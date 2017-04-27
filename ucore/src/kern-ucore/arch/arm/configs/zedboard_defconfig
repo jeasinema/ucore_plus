@@ -72,5 +72,7 @@ SFS_MINIMAL_CONTENT=y
 #
 # HAVE_LINUX_DDE36_BASE is not set
 
-# Additional Drivers
+#
+# Board specific
+CONSOLE_ZYNQ_UART=0
 ZYNQ_USB=y

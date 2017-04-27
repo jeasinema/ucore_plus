@@ -39,7 +39,12 @@
 
 static bool serial_exists = 0;
 
+
+#if defined(USE_UART0)
+static uint32_t uart_base = ZEDBOARD_UART0;
+#else 
 static uint32_t uart_base = ZEDBOARD_UART1;
+#endif
 
 struct uart_zynq {
 	uint32_t control;			/* 0x00 - Control Register [8:0] */
@@ -62,17 +67,18 @@ static inline struct uart_zynq * uart_zynq_ports(int port)
 
 static inline struct uart_zynq * uart_zynq_ports(int port)
 {
-	switch (port) {
-		case 0:
-			return (struct uart_zynq *) ZEDBOARD_UART0;
-		case 1:
-			//return (struct uart_zynq *) ZEDBOARD_UART1;
-			return (struct uart_zynq *) uart_base;
-		default:
-			// TODO a better default behavior
-			//return (struct uart_zynq *) ZEDBOARD_UART1;
-			return (struct uart_zynq *) uart_base;
-	}
+    return uart_base;
+	//switch (port) {
+	//	case 0:
+	//		return (struct uart_zynq *) ZEDBOARD_UART0;
+	//	case 1:
+	//		return (struct uart_zynq *) ZEDBOARD_UART1;
+	//		//return (struct uart_zynq *) uart_base;
+	//	default:
+	//		// TODO a better default behavior
+	//		//return (struct uart_zynq *) ZEDBOARD_UART1;
+	//		return (struct uart_zynq *) uart_base;
+	//}
 }
 
 void serial_putc(int c);
@@ -84,7 +90,12 @@ static int serial_int_handler(int irq, void * data) {
 	dev_stdin_write(c);
     
     // clear interrupt status
+#ifdef USE_UART0
+    const int port = 0;
+#else 
     const int port = 1;
+#endif
+
     serial_clear(port);
 	return 0;
 }
@@ -153,7 +164,12 @@ int serial_init_remap_irq(uint32_t irq, int port) {
 
 /* put char */
 void serial_putc(int c) {
-	const int port = 1;
+
+#ifdef USE_UART0
+	const int port = 0;
+#else 
+    const int port = 1;
+#endif
 	struct uart_zynq * regs = uart_zynq_ports(port);
 
 	while((inw((uint32_t) & regs -> channel_sts) & ZYNQ_UART_SR_TXFULL) != 0) { }
@@ -180,7 +196,12 @@ static int serial_test(const int port) {
 }
 
 int serial_proc_data(void) {
-	const int port = 1;
+
+#ifdef USE_UART0
+	const int port = 0;
+#else 
+    const int port = 1;
+#endif
 
 	struct uart_zynq * regs = uart_zynq_ports(port);
 

@@ -36,7 +36,11 @@ static void put_string(const char *str)
 
 void board_init_early()
 {
+#ifdef USE_UART0
+	const int port = 0;
+#else 
     const int port = 1;
+#endif
 	// put_string(message);
 	gpio_init();
 	gpio_test();
@@ -47,7 +51,11 @@ void board_init_early()
 
 void board_init()
 {
+#ifdef USE_UART0
+	const int port = 0;
+#else 
     const int port = 1;
+#endif
     // ioremap apu
     uint32_t apu_base = 
         (uint32_t) __ucore_ioremap(ZEDBOARD_APU_BASE, 3 * PGSIZE, 0);

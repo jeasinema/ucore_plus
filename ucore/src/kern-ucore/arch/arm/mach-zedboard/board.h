@@ -21,4 +21,15 @@
 
 #include "board-zedboard.h"
 
+#if defined(UCONFIG_CONSOLE_ZYNQ_UART)
+    #if UCONFIG_CONSOLE_ZYNQ_UART == 0
+        #define USE_UART0
+    #else
+        #define USE_UART1
+    #endif
+#else 
+    #define USE_UART1
+#endif
+
+
 #endif

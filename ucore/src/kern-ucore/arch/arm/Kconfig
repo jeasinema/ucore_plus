@@ -84,9 +84,14 @@ config BOOTLOADER_START_ADDR
   default 0x0
 
 config ZYNQ_USB
-depends ARM_BOARD_ZEDBOARD 
-bool "USB Support for ZYNQ"
-default n
+  depends ARM_BOARD_ZEDBOARD 
+  bool "USB Support for ZYNQ"
+  default n
+
+config CONSOLE_ZYNQ_UART
+  depends ARM_BOARD_ZEDBOARD
+  int "Choose an UART as default console"
+  default 0
 
 endmenu
 
