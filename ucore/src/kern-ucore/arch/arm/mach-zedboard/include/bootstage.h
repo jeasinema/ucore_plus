@@ -222,7 +222,9 @@ ulong timer_get_boot_us(void);
  * @param val	Progress state (enum bootstage_id), or -id if an error
  *		has occurred.
  */
-void show_boot_progress(int val);
+// TODO: add by jeasinema@20170427
+//void show_boot_progress(int val);
+#define show_boot_progress(val) do {} while (0)
 #endif
 
 #if defined(CONFIG_BOOTSTAGE) && !defined(CONFIG_SPL_BUILD) && \

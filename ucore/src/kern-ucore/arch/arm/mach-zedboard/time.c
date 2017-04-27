@@ -133,6 +133,11 @@ static uint64_t usec_to_tick(unsigned long usec)
 
 void __weak __udelay(unsigned long usec)
 {
+    //TODO:add by jeasinema@20170427
+    int i = usec * 1000;
+    while(i--);
+    return;
+
 	uint64_t tmp;
 
 	tmp = get_ticks() + usec_to_tick(usec);	/* get current timestamp */

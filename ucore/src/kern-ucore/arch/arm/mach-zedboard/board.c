@@ -22,6 +22,11 @@
 #include <pmm.h>
 #include <clock.h>
 
+#include "ps7_init_gpl.h"
+
+extern void do_usb_start(void);
+extern void usb_show_tree(void);
+
 static const char *message = "Initializing ZEDBOARD...\n";
 
 /*
@@ -42,10 +47,19 @@ void board_init_early()
     const int port = 1;
 #endif
 	// put_string(message);
-	gpio_init();
-	gpio_test();
+	//gpio_init();
+	//gpio_test();
+#if defined(UCONFIG_ZYNQ_USB)
+    //ps7_init();
+#endif
 
 	serial_init(port);  // for the sake of debug, init serial in advance
+
+#if defined(UCONFIG_ZYNQ_USB)
+    initf_malloc();
+    do_usb_start();
+    usb_show_tree();
+#endif
 }
 
 
@@ -72,6 +86,9 @@ void board_init()
     else
         serial_init_remap_irq(PER_IRQ_BASE_NONE_SPI + ZEDBOARD_UART0_IRQ, port);
 
+    // init usb
+    //do_usb_start();
+    //usb_show_tree();
 }
 
 /* no nand */

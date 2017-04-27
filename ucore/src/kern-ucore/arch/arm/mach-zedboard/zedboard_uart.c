@@ -110,7 +110,7 @@ static void serial_setbrg(const int port) {
 	// calculate bdiv and bgen
 	// assume that uart_ref_clk is 50 mhz
 	bdiv = 6;
-	bgen = 62;
+	bgen = 62 * 2;
 
 	// write registers
 	outw((uint32_t) & regs -> baud_rate_divider, bdiv);
@@ -159,7 +159,7 @@ int serial_init_remap_irq(uint32_t irq, int port) {
 
 	register_irq(irq, serial_int_handler, NULL);
 	pic_enable(irq);  // useless, this func is not implemented
-    kprintf("do ioremap on uart");
+    kprintf("do ioremap on uart\n");
 }
 
 /* put char */

@@ -1256,8 +1256,7 @@ Void_t* mALLOc(bytes) size_t bytes;
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
-		//return malloc_simple(bytes); TODO
-		return malloc(bytes);
+		return malloc_simple(bytes);
 #endif
 
   /* check if mem_malloc_init() was run */
@@ -2381,6 +2380,7 @@ int initf_malloc(void)
 	//assert(gd->malloc_base);	/* Set up by crt0.S */
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
+    gd->malloc_base = 0x1000; //TODO
 #endif
 
 	return 0;

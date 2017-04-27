@@ -38,6 +38,8 @@ static int ulpi_wait(struct ulpi_viewport *ulpi_vp, u32 mask)
 
 	/* Wait for the bits in mask to become zero. */
 	while (--timeout) {
+        //TODO: add by jeasinema@20170427
+        return 0;
 		if ((readl(ulpi_vp->viewport_addr) & mask) == 0)
 			return 0;
 

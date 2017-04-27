@@ -28,7 +28,7 @@
 #define CONFIG_CREATE_ARCH_SYMLINK 1
 #define CONFIG_DM_SEQ_ALIAS 1
 #define CONFIG_SYS_VENDOR "xilinx"
-#define CONFIG_USB_STORAGE 1
+//#define CONFIG_USB_STORAGE 1
 #define CONFIG_OF_SPL_REMOVE_PROPS "pinctrl-0 pinctrl-names clocks clock-names interrupt-parent"
 #define CONFIG_EFI_LOADER 1
 #define CONFIG_CMD_PING 1
@@ -148,7 +148,7 @@
 #define CONFIG_CMD_MEMINFO 1
 #define CONFIG_CMD_IMPORTENV 1
 #define CONFIG_FIT_VERBOSE 1
-#define CONFIG_SYS_MALLOC_F_LEN 0x600
+#define CONFIG_SYS_MALLOC_F_LEN 0x10000
 #define CONFIG_CMD_ELF 1
 #define CONFIG_SPL_DM_SEQ_ALIAS 1
 #define CONFIG_G_DNL_VENDOR_NUM 0x03fd

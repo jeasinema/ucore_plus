@@ -322,7 +322,7 @@ void pmm_init(void)
 			 (uintptr_t) PADDR(__kernel_text_start), PTE_P);
 
 	//boot_map_segment(boot_pgdir, KIOBASE, KIOSIZE, KIOBASE, PTE_W | PTE_IOMEM);	// fixed address
-	//boot_map_segment(boot_pgdir, KIOBASE, KIOSIZE, KIOBASE, PTE_W | PTE_IOMEM);	// fixed address
+	boot_map_segment(boot_pgdir, KIOBASE, KIOSIZE, KIOBASE, PTE_W | PTE_IOMEM);	// fixed address
 
 	//Add PTE_W|PTE_U by whn09
 	//PTE_W should be aborted later
