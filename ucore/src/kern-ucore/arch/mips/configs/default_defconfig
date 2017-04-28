@@ -1,4 +1,9 @@
 #
+# Platform
+# 
+ARCH_MIPS=y
+
+#
 # Toolchain setup
 #
 
@@ -28,3 +33,8 @@ SFS_IMAGE_SIZE=4
 # Linux Device Driver Environment
 #
 # HAVE_LINUX_DDE_BASE is not set
+
+#
+# Bionic libc porting related code is currently not supported in MIPS.
+#
+BIONIC_LIBC=n

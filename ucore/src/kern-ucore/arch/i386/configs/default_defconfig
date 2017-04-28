@@ -1,4 +1,9 @@
 #
+# Platform
+# 
+ARCH_I386=y
+
+#
 # Toolchain setup
 #
 CROSS_COMPILE=""
@@ -20,8 +25,8 @@ SCHEDULER_MLFQ=y
 #
 HAVE_SFS=y
 SFS_IMAGE_SIZE=256
-# HAVE_YAFFS2 is not set
-# HAVE_FATFS is not set
+HAVE_YAFFS2=y
+HAVE_FATFS=y
 
 #
 # Linux Device Driver Environment
@@ -32,3 +37,8 @@ SFS_IMAGE_SIZE=256
 # ucore test is set
 # close this function by setting var to ''
 #
+
+#
+# Bionic libc porting related code is currently not supported in i386.
+#
+BIONIC_LIBC=n

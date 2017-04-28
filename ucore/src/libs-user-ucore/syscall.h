@@ -68,7 +68,7 @@ int sys_cleanup_module(const char __user * name);
 int sys_list_module();
 
 int sys_mount(const char *source, const char *target,
-	      const char *filesystemtype, const void *data);
+	      const char *filesystemtype, unsigned long flags, const void *data);
 int sys_umount(const char *target);
 
 int sys_ioctl(int d, int request, unsigned long data);
@@ -80,4 +80,5 @@ int sys_rf212_reg(uint8_t reg, uint8_t value);
 int sys_rf212_reset();
 //halt the system
 int sys_halt();
+int sys_debug(uint32_t pid, uint32_t sig, uint32_t arg);
 #endif /* !__USER_LIBS_SYSCALL_H__ */

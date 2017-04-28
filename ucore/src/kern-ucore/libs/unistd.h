@@ -72,6 +72,9 @@
 #define SYS_mount           153
 #define SYS_umount			154
 
+/* zhangyk May 30 2016 */
+#define SYS_debug           155
+
 /* liucong 20121109 */
 #define SYS_rf212           199
 
@@ -139,6 +142,12 @@
 #define O_SYNC           010000
 #define O_FSYNC          O_SYNC
 #define O_ASYNC          020000
+
+/* access function */
+#define F_OK            0       /* test for existence of file */
+#define X_OK            0x01    /* test for execute or search permission */
+#define W_OK            0x02    /* test for write permission */
+#define R_OK            0x04    /* test for read permission */
 
 /* lseek codes */
 #define LSEEK_SET           0	// seek relative to beginning of file

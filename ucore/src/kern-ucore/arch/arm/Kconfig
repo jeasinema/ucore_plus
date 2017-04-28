@@ -2,6 +2,8 @@ source src/kern-ucore/Kconfig
 
 menu "Ucore Kernel Configuration (ARM)"
 
+depends ARCH_ARM
+
 choice
 	prompt "ARM CPU version"
 	default ARM_CPU_V7
