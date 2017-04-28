@@ -50,7 +50,7 @@ void board_init_early()
 	//gpio_init();
 	//gpio_test();
 #if defined(UCONFIG_ZYNQ_USB)
-    //ps7_init();
+    ps7_init();
 #endif
 
 	serial_init(port);  // for the sake of debug, init serial in advance

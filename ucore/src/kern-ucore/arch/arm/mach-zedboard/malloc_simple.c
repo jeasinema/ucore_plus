@@ -27,6 +27,7 @@ void *malloc_simple(size_t bytes)
 	}
 	ptr = map_sysmem(gd->malloc_base + gd->malloc_ptr, bytes);
 	gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
+    debug("hahaha\n");
     debug("%lx\n", (ulong)ptr);
 
 	return ptr;

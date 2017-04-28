@@ -1916,6 +1916,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
      * each call increases the size to allocate, to account for the header.
      */
     m  = (char*)(mALLOc(bytes));
+    debug("malloc finished\n");
     /* Aligned -> return it */
     if ((((unsigned long)(m)) % alignment) == 0)
       return m;
@@ -2380,7 +2381,7 @@ int initf_malloc(void)
 	//assert(gd->malloc_base);	/* Set up by crt0.S */
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
-    gd->malloc_base = 0x1000; //TODO
+    gd->malloc_base = 0xe0010000; //TODO
 #endif
 
 	return 0;
