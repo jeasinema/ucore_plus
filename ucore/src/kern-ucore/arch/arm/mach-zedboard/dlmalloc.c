@@ -2381,7 +2381,7 @@ int initf_malloc(void)
 	//assert(gd->malloc_base);	/* Set up by crt0.S */
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
-    gd->malloc_base = 0xe0010000; //TODO
+    gd->malloc_base = 0x1000; //TODO
 #endif
 
 	return 0;
