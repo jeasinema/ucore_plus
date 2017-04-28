@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <stab.h>
 
+#if defined(UCONFIG_ARCH_I386)
 enum DebugSignal {
     DEBUG_ATTACH = 0,
     DEBUG_WAIT = 1,
@@ -854,3 +855,9 @@ int main(int argc, char* argv[]) {
     }
     return 0;
 }
+#else
+int main(int argc, char* argv[]) {
+    cprintf("current platform do not support udb!\n"); 
+    return 0;
+}
+#endif

@@ -1,4 +1,9 @@
 #
+# Platform
+# 
+ARCH_ARM=y
+
+#
 # Toolchain setup
 #
 CROSS_COMPILE="arm-linux-"

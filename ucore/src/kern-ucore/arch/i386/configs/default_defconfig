@@ -1,4 +1,9 @@
 #
+# Platform
+# 
+ARCH_I386=y
+
+#
 # Toolchain setup
 #
 CROSS_COMPILE=""

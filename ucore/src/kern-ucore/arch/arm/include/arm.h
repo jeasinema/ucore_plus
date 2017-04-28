@@ -162,9 +162,9 @@ void *__memcpy(void *dst, const void *src, size_t n)
 
 //TODO: Seems using __attribute__ ((always_inline)) with function declared
 //some where else leads to compiling error. Need further research.
-void *__memset(void *s, char c, size_t n);
-void *__memmove(void *dst, const void *src, size_t n);
-void *__memcpy(void *dst, const void *src, size_t n);
+static void *__memset(void *s, char c, size_t n);
+static void *__memmove(void *dst, const void *src, size_t n);
+static void *__memcpy(void *dst, const void *src, size_t n);
 
 #ifndef __HAVE_ARCH_MEMSET_TODELETE
 #define __HAVE_ARCH_MEMSET_TODELETE

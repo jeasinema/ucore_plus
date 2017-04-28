@@ -4,6 +4,11 @@
 #
 
 #
+# Platform
+# 
+ARCH_AMD64=y
+
+#
 # Toolchain setup
 #
 CROSS_COMPILE="arm-none-eabi-"

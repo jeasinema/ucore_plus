@@ -1,4 +1,9 @@
 #
+# Platform
+# 
+ARCH_ARM=y
+
+#
 # Toolchain setup
 #
 # TODO determine a proper prefix

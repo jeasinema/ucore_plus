@@ -1,4 +1,9 @@
 #
+# Platform
+# 
+ARCH_MIPS=y
+
+#
 # Toolchain setup
 #
 

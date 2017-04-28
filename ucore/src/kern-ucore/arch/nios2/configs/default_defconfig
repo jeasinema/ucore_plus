@@ -1,4 +1,9 @@
 #
+# Platform
+# 
+ARCH_NIOSII=y
+
+#
 # Toolchain setup
 #
 CROSS_COMPILE="nios2-elf-"

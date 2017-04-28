@@ -7,6 +7,7 @@ source src/kern-ucore/dde36/Kconfig
 
 menu "Profiler"
 config PROFILER_ON
+    depends ARCH_AMD64
 	bool "Enable profiler"
 	default n
 

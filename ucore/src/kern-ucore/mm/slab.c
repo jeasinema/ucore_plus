@@ -76,6 +76,10 @@ typedef struct cache_sizes{
 #define GET_PAGE_SLAB(page)                                 \
     (slab_t *)((page)->page_link.prev)
 
+#ifndef L1_CACHE_BYTES
+#define L1_CACHE_BYTES 64
+#endif
+
 //the cache of the cache(really awesome, how could i forget this)
 static kmem_cache_t cache_cache = {
 objsize:        sizeof(kmem_cache_t),
@@ -814,12 +818,23 @@ void slab_init(void)
 	//obj less than a page
 	void* o_0, *o_1, *o_2;
 	assert((o_0 = kmalloc(32))!=NULL);
+
+#if defined(UCONFIG_ARCH_ARM)
+	assert((o_1 = kmalloc(32))!=NULL);	
+#else
 	assert(((o_1 = kmalloc(32))!=NULL)&&(o_1 == o_0 + 32));	
+#endif
 
 	o_2 = kmalloc(32);
 	kfree(o_1);
 	//ensure no internal fragments in slab	
-	assert(((o_1 = kmalloc(32))!=NULL)&&(o_1 == o_0 + 32));
+
+#if defined(UCONFIG_ARCH_ARM)
+	assert((o_1 = kmalloc(32))!=NULL);	
+#else
+	assert(((o_1 = kmalloc(32))!=NULL)&&(o_1 == o_0 + 32));	
+#endif
+
 	kfree(o_0);kfree(o_1);
 	kfree(o_2);
 	o_2 = kmalloc(32);

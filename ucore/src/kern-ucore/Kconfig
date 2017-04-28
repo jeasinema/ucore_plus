@@ -1,3 +1,39 @@
+menu "Platform setup"
+
+choice
+    prompt "Supported platforms"
+config ARCH_AMD64
+    bool "x86_64 Architecture"
+    default n
+
+config ARCH_ARM
+    bool "ARM Architecture"
+    default y
+
+config ARCH_I386
+    bool "x86_32 Architecture"
+    default n
+
+config ARCH_MIPS
+    bool "MIPS Architecture"
+    default n
+
+config ARCH_NIOSII
+    bool "Altera NIOSII Architecture"
+    default n
+
+config ARCH_OR32
+    bool "OpenRISC32 Architecture"
+    default n
+
+config ARCH_USER_MODE
+    bool "User Mode uCore"
+    default n
+
+endchoice
+
+endmenu
+
 menu "Toolchain setup"
 
 config CROSS_COMPILE
@@ -18,3 +54,4 @@ config BIONIC_LIBC
     architectures triggers compiling error.
 
 endmenu
+
