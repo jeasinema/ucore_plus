@@ -1255,8 +1255,9 @@ Void_t* mALLOc(bytes) size_t bytes;
   INTERNAL_SIZE_T nb;
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
-		return malloc_simple(bytes);
+    kprintf("hahahaha\n");
+	//if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
+	return malloc_simple(bytes);
 #endif
 
   /* check if mem_malloc_init() was run */
@@ -2069,6 +2070,9 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
 #endif
 #endif
   Void_t* mem = mALLOc (sz);
+    // TODO fix by jeasinema@20170503
+    return mem;
+
 
   if ((long)n < 0) return NULL;
 
@@ -2381,7 +2385,8 @@ int initf_malloc(void)
 	//assert(gd->malloc_base);	/* Set up by crt0.S */
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
-    gd->malloc_base = 0x1000; //TODO
+    //gd->malloc_base = 0xe0010000; //TODO work in qemu
+    gd->malloc_base = 0xc2400000; //TODO
 #endif
 
 	return 0;

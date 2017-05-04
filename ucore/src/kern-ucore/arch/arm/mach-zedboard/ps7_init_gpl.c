@@ -13091,16 +13091,16 @@ ps7_init()
   if (ret != PS7_INIT_SUCCESS) return ret;
 
   // PLL init
-  ret = ps7_config (ps7_pll_init_data); 
-  if (ret != PS7_INIT_SUCCESS) return ret;
+  //ret = ps7_config (ps7_pll_init_data); 
+  //if (ret != PS7_INIT_SUCCESS) return ret;
 
-  // Clock init
-  ret = ps7_config (ps7_clock_init_data);
-  if (ret != PS7_INIT_SUCCESS) return ret;
+  //// Clock init
+  //ret = ps7_config (ps7_clock_init_data);
+  //if (ret != PS7_INIT_SUCCESS) return ret;
 
-  // DDR init
-  ret = ps7_config (ps7_ddr_init_data);
-  if (ret != PS7_INIT_SUCCESS) return ret;
+  //// DDR init
+  //ret = ps7_config (ps7_ddr_init_data);
+  //if (ret != PS7_INIT_SUCCESS) return ret;
 
 
 

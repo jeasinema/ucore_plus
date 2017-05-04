@@ -59,6 +59,11 @@ int ehci_hcd_init(int index,  enum usb_init_type init, struct ehci_hccr **hccr,
 	ulpi_vp.port_num = 0;
 
 	ret = ulpi_init(&ulpi_vp);
+
+        // TODO: add by jeasinema@20170504
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg after ulpi init:0x%08x\n", reg);
+
 	if (ret) {
 		kprintf("zynq ULPI viewport init failed\n");
 		return -1;

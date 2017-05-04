@@ -134,7 +134,7 @@ static uint64_t usec_to_tick(unsigned long usec)
 void __weak __udelay(unsigned long usec)
 {
     //TODO:add by jeasinema@20170427
-    int i = usec * 1000;
+    int i = usec * 10;
     while(i--);
     return;
 

@@ -177,16 +177,27 @@ static int ehci_reset(struct ehci_ctrl *ctrl)
 {
 	uint32_t cmd;
 	int ret = 0;
+        // TODO: add by jeasinema@20170504
+		uint32_t reg_t = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg before reset on 0x%08x :0x%08x\n", ctrl, reg_t);
+
+    // TODO: hardcoded mode selection
+    uint32_t usb_mode = ehci_readl((uint32_t*)0xe00021A8);
+    debug("read in usb mode:0x%08x\n", usb_mode);
 
 	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
 	cmd = (cmd & ~CMD_RUN) | CMD_RESET;
 	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
+        debug("on reset, write to 0x%08x : 0x%08x", &ctrl->hcor->or_usbcmd, cmd);
 	ret = handshake((uint32_t *)&ctrl->hcor->or_usbcmd,
 			CMD_RESET, 0, 250 * 1000);
 	if (ret < 0) {
 		kprintf("EHCI fail to reset\n");
 		goto out;
 	}
+    // TODO: hardcoded mode selection
+    ehci_writel((uint32_t*)0xe00021A8, usb_mode | 0x3);
+    debug("write to usb mode:0x%08x\n", usb_mode | 0x3);
 
 	if (ehci_is_TDI())
 		ctrl->ops.set_usb_mode(ctrl);
@@ -198,6 +209,10 @@ static int ehci_reset(struct ehci_ctrl *ctrl)
 	ehci_writel(&ctrl->hcor->or_txfilltuning, cmd);
 #endif
 out:
+        // TODO: add by jeasinema@20170504
+		reg_t = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg after reset on 0x%08x :0x%08x\n", ctrl, reg_t);
+
 	return ret;
 }
 
@@ -687,10 +702,11 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 			return -1;
 		break;
 	default:
+        debug("status reg is null\n");
 		status_reg = NULL;
 		break;
 	}
-
+    debug("in submit root, start transfer\n");
 	switch (typeReq) {
 	case DeviceRequest | USB_REQ_GET_DESCRIPTOR:
 		switch (le16_to_cpu(req->value) >> 8) {
@@ -761,8 +777,11 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 		srclen = 2;
 		break;
 	case USB_REQ_GET_STATUS | ((USB_RT_PORT | USB_DIR_IN) << 8):
+        debug("in submit root, read port status!\n");
 		memset(tmpbuf, 0, 4);
 		reg = ehci_readl(status_reg);
+        debug("read ehci status reg from:0x%08x", status_reg);
+        debug("read ehci status reg content:0x%08x", reg);
 		if (reg & EHCI_PS_CS)
 			tmpbuf[0] |= USB_PORT_STAT_CONNECTION;
 		if (reg & EHCI_PS_PE)
@@ -1045,6 +1064,7 @@ static int ehci_common_init(struct ehci_ctrl *ctrl, uint tweaks)
 			   ALIGN_END_ADDR(uint32_t, ctrl->periodic_list,
 					  1024));
 
+    kprintf("flush cache finished!\n");
 	/* Set periodic list base address */
 	ehci_writel(&ctrl->hcor->or_periodiclistbase,
 		(unsigned long)ctrl->periodic_list);
@@ -1107,6 +1127,11 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	ctrl->ops = default_ehci_ops;
 
 	rc = ehci_hcd_init(index, init, &ctrl->hccr, &ctrl->hcor);
+
+        // TODO: add by jeasinema@20170504
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg after hcd init:0x%08x\n", reg);
+
 	if (rc)
 		return rc;
 	if (init == USB_INIT_DEVICE)
@@ -1124,7 +1149,16 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 #ifdef CONFIG_USB_EHCI_FARADAY
 	tweaks |= EHCI_TWEAK_NO_INIT_CF;
 #endif
+        // TODO: add by jeasinema@20170504
+		reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg before hcd common init:0x%08x\n", reg);
+
 	rc = ehci_common_init(ctrl, tweaks);
+        // TODO: add by jeasinema@20170504
+		reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg after hcd common init:0x%08x\n", reg);
+
+
 	if (rc)
 		return rc;
 
@@ -1160,8 +1194,10 @@ static int _ehci_submit_control_msg(struct usb_device *dev, unsigned long pipe,
 	if (usb_pipedevice(pipe) == ctrl->rootdev) {
 		if (!ctrl->rootdev)
 			dev->speed = USB_SPEED_HIGH;
+        debug("ehci ctl submit root\n");
 		return ehci_submit_root(dev, pipe, buffer, length, setup);
 	}
+    debug("ehci ctl submit async\n");
 	return ehci_submit_async(dev, pipe, buffer, length, setup);
 }
 

@@ -94,6 +94,12 @@ int usb_init(void)
 		 * lowlevel init is OK, now scan the bus for devices
 		 * i.e. search HUBs and configure them
 		 */
+
+        // TODO: add by jeasinema@20170504
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("pre read ehci status reg content:0x%08x", reg);
+
+
 		controllers_initialized++;
 		start_index = dev_index;
 		kprintf("scanning bus %d for devices... ", i);
@@ -1185,11 +1191,16 @@ int usb_new_device(struct usb_device *dev)
 #ifdef CONFIG_USB_XHCI_HCD
 	do_read = false;
 #endif
+        // TODO: add by jeasinema@20170504
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg before setup device content:0x%08x\n", reg);
+
 	err = usb_setup_device(dev, do_read, dev->parent);
 	if (err)
 		return err;
 
 	/* Now probe if the device is a hub */
+    debug("start probing now!\n");
 	err = usb_hub_probe(dev, 0);
 	if (err < 0)
 		return err;

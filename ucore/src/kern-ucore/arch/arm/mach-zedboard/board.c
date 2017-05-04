@@ -24,6 +24,7 @@
 
 #include "ps7_init_gpl.h"
 
+extern void usb_stop(void);
 extern void do_usb_start(void);
 extern void usb_show_tree(void);
 
@@ -56,9 +57,12 @@ void board_init_early()
 	serial_init(port);  // for the sake of debug, init serial in advance
 
 #if defined(UCONFIG_ZYNQ_USB)
+    usb_stop();
     initf_malloc();
     do_usb_start();
+    kprintf("prepare for show tree\n");
     usb_show_tree();
+
 #endif
 }
 

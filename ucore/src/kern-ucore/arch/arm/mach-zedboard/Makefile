@@ -3,7 +3,7 @@ obj-y := board.o clock.o zedboard_uart.o picirq.o zedboard_gpio.o
 ifdef UCONFIG_ZYNQ_USB
 ZYNQ_INC_PATH := mach-zedboard/include
 TARGET_CFLAGS += $(addprefix -I$(KTREE)/arch/$(ARCH)/, $(ZYNQ_INC_PATH))
-TARGET_CFLAGS += $(addprefix -I$(KTREE)/arch/$(ARCH)/, mach-zedboard)
+TARGET_CFLAGS += $(addprefix -I$(KTREE)/arch/$(ARCH)/, $(ZYNQ_INC_PATH)/..)
 TARGET_CFLAGS += $(addprefix -include $(KTREE)/arch/$(ARCH)/, mach-zedboard/zynq-common.h)
 TARGET_CFLAGS += $(addprefix -include $(KTREE)/arch/$(ARCH)/, mach-zedboard/zynq_thinpadng.h)
 TARGET_CFLAGS += $(addprefix -include $(KTREE)/arch/$(ARCH)/, mach-zedboard/zynq_config.h)

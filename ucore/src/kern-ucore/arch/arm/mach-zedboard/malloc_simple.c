@@ -54,9 +54,13 @@ void *calloc(size_t nmemb, size_t elem_size)
 	size_t size = nmemb * elem_size;
 	void *ptr;
 
-	ptr = malloc(size);
-	memset(ptr, '\0', size);
+    debug("before a calloc\n");
+    // TODO: fix by jeasinema@20170503
+	//ptr = malloc(size);
+	ptr = malloc_simple(size);
+	//memset(ptr, '\0', size);
 
+    debug("after a calloc\n");
 	return ptr;
 }
 #endif

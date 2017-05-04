@@ -107,6 +107,10 @@ int usb_get_port_status(struct usb_device *dev, int port, void *data)
 
 static void usb_hub_power_on(struct usb_hub_device *hub)
 {
+        // TODO: add by jeasinema@20170504
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg before poweron:0x%08x\n", reg);
+
 	int i;
 	struct usb_device *dev;
 	unsigned pgood_delay = hub->desc.bPwrOn2PwrGood * 2;
@@ -119,6 +123,10 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
 		debug("port %d returns %lX\n", i + 1, dev->status);
 	}
+        // TODO: add by jeasinema@20170504
+		reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg real after poweron:0x%08x\n", reg);
+
 
 #ifdef CONFIG_SANDBOX
 	/*
@@ -147,7 +155,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	 * Do a minimum delay of the larger value of 100ms or pgood_delay
 	 * so that the power can stablize before the devices are queried
 	 */
-	hub->query_delay = get_timer(0) + max(100, (int)pgood_delay);
+	//hub->query_delay = get_timer(0) + max(100, (int)pgood_delay);  TODO add by jeasinema@20170427
 
 	/*
 	 * Record the power-on timeout here. The max. delay (timeout)
@@ -374,6 +382,11 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 static int usb_scan_port(struct usb_device_scan *usb_scan)
 {
+        // TODO: add by jeasinema@20170504
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg before scan port content:0x%08x\n", reg);
+
+    debug("start scan port\n");
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus;
 	unsigned short portchange;
@@ -392,8 +405,20 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 	 */
 	if (get_timer(0) < hub->query_delay)
 		return 0;
+    
+    // TODO add by jeasinema@20170503
+    uint32_t _wait_ = 10000;
+    while(_wait_--);
+	portstatus = le16_to_cpu(portsts->wPortStatus);
+	portchange = le16_to_cpu(portsts->wPortChange);
+	debug("before Port %d Status %X Change %X\n", i + 1, portstatus, portchange);
+
 
 	ret = usb_get_port_status(dev, i + 1, portsts);
+    // TODO add by jeasinema@20170503
+    _wait_ = 1000000;
+    while(_wait_--);
+
 	if (ret < 0) {
 		debug("get_port_status failed\n");
 		if (get_timer(0) >= hub->connect_timeout) {
@@ -499,6 +524,7 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 
 static int usb_device_list_scan(void)
 {
+    debug("start scan hub\n");
 	struct usb_device_scan *usb_scan;
 	struct usb_device_scan *tmp;
 	static int running;
@@ -660,6 +686,7 @@ static int usb_hub_configure(struct usb_device *dev)
 	      (le16_to_cpu(hubsts->wHubStatus) & HUB_STATUS_OVERCURRENT) ? \
 	      "" : "no ");
 	usb_hub_power_on(hub);
+    debug("finish power on device\n");
 
 	/*
 	 * Reset any devices that may be in a bad state when applying
@@ -668,6 +695,7 @@ static int usb_hub_configure(struct usb_device *dev)
 	 */
 	for (i = 0; i < dev->maxchild; i++)
 		usb_hub_reset_devices(i + 1);
+    debug("finish reset device\n");
 
 	/*
 	 * Only add the connected USB devices, including potential hubs,
@@ -679,7 +707,8 @@ static int usb_hub_configure(struct usb_device *dev)
 	for (i = 0; i < dev->maxchild; i++) {
 		struct usb_device_scan *usb_scan;
 
-		usb_scan = calloc(1, sizeof(*usb_scan));
+		usb_scan = calloc(1, sizeof(struct usb_device_scan));
+        debug("finish a calloc\n");
 		if (!usb_scan) {
 			kprintf("Can't allocate memory for USB device!\n");
 			return -ENOMEM;
@@ -689,11 +718,13 @@ static int usb_hub_configure(struct usb_device *dev)
 		usb_scan->port = i;
 		list_add_tail(&usb_scan->list, &usb_scan_list);
 	}
+    debug("finish calloc\n");
 
 	/*
 	 * And now call the scanning code which loops over the generated list
 	 */
 	ret = usb_device_list_scan();
+    debug("finish hub scan\n");
 
 	return ret;
 }
@@ -745,6 +776,11 @@ int usb_hub_probe(struct usb_device *dev, int ifnum)
 	ret = usb_hub_check(dev, ifnum);
 	if (ret)
 		return 0;
+    debug("usb hub check pass, now start to configure\n");
+        // TODO: add by jeasinema@20170504
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg before configure hub content:0x%08x\n", reg);
+
 	ret = usb_hub_configure(dev);
 	return ret;
 }

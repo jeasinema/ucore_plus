@@ -477,7 +477,11 @@ void usb_show_tree(void)
 			break;
 		if (udev->parent == NULL)
 			usb_show_subtree(udev);
+        // TODO: add by jeasinema@20170427
+		usb_display_desc(udev);
+		usb_display_config(udev);
 	}
+
 #endif
 }
 
@@ -565,6 +569,10 @@ int do_usb_stop_keyboard(int force)
 
 void do_usb_start(void)
 {
+        // TODO: add by jeasinema@20170504
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("read ehci status reg before lowlevel init:0x%08x\n", reg);
+
 	bootstage_mark_name(BOOTSTAGE_ID_USB_START, "usb_start");
 
 	if (usb_init() < 0)
