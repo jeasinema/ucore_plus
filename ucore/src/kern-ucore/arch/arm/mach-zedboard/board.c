@@ -57,11 +57,11 @@ void board_init_early()
 	serial_init(port);  // for the sake of debug, init serial in advance
 
 #if defined(UCONFIG_ZYNQ_USB)
-    usb_stop();
+    //usb_stop();
     initf_malloc();
-    do_usb_start();
+    //do_usb_start();
     kprintf("prepare for show tree\n");
-    usb_show_tree();
+    //usb_show_tree();
 
 #endif
 }

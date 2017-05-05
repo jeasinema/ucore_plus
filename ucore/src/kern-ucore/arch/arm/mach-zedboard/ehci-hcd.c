@@ -315,6 +315,10 @@ static int
 ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int length, struct devrequest *req)
 {
+    debug("into submit async\n");
+    debug("usbsts:0x%08x\n",*(uint32_t*)(0xe0002144));
+    debug("portsc:0x%08x\n",*(uint32_t*)(0xe0002184));
+
 	ALLOC_ALIGN_BUFFER(struct QH, qh, 1, USB_DMA_MINALIGN);
 	struct qTD *qtd;
 	int qtd_count = 0;
@@ -397,7 +401,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 #if CONFIG_SYS_MALLOC_LEN <= 64 + 128 * 1024
 #warning CONFIG_SYS_MALLOC_LEN may be too small for EHCI
 #endif
-	qtd = memalign(USB_DMA_MINALIGN, qtd_count * sizeof(struct qTD));
+    debug("in submit_async, before memalign\n");
+    qtd = memalign(USB_DMA_MINALIGN, qtd_count * sizeof(struct qTD));
+    debug("in submit_async, after memalign, qtd0x%08x:\n", qtd);
 	if (qtd == NULL) {
 		kprintf("unable to allocate TDs\n");
 		return -1;
@@ -560,6 +566,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	flush_dcache_range((unsigned long)qtd,
 			   ALIGN_END_ADDR(struct qTD, qtd, qtd_count));
 
+    debug("usbsts:0x%08x\n",*(uint32_t*)(0xe0002144));
+    debug("portsc:0x%08x\n",*(uint32_t*)(0xe0002184));
+
 	/* Set async. queue head pointer. */
 	ehci_writel(&ctrl->hcor->or_asynclistaddr, virt_to_phys(&ctrl->qh_list));
 
@@ -570,6 +579,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
 	cmd |= CMD_ASE;
 	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
+
+    debug("usbsts:0x%08x\n",*(uint32_t*)(0xe0002144));
+    debug("portsc:0x%08x\n",*(uint32_t*)(0xe0002184));
 
 	ret = handshake((uint32_t *)&ctrl->hcor->or_usbsts, STS_ASS, STS_ASS,
 			100 * 1000);
@@ -582,6 +594,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	ts = get_timer(0);
 	vtd = &qtd[qtd_counter - 1];
 	timeout = USB_TIMEOUT_MS(pipe);
+    debug("in async submit qtd counter:%d\n", qtd_counter);
+
+    int _count = 10;
 	do {
 		/* Invalidate dcache */
 		invalidate_dcache_range((unsigned long)&ctrl->qh_list,
@@ -595,7 +610,13 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		if (!(QT_TOKEN_GET_STATUS(token) & QT_TOKEN_STATUS_ACTIVE))
 			break;
 		WATCHDOG_RESET();
-	} while (get_timer(ts) < timeout);
+    // TODO: jeasinema workaroud for essential delay
+        mdelay(100);
+        debug("alive\n");
+        debug("usbsts:0x%08x\n",*(uint32_t*)(0xe0002144));
+        debug("portsc:0x%08x\n",*(uint32_t*)(0xe0002184));
+	// } while (get_timer(ts) < timeout);
+	} while (_count--);
 
 	/*
 	 * Invalidate the memory area occupied by buffer
@@ -780,8 +801,8 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
         debug("in submit root, read port status!\n");
 		memset(tmpbuf, 0, 4);
 		reg = ehci_readl(status_reg);
-        debug("read ehci status reg from:0x%08x", status_reg);
-        debug("read ehci status reg content:0x%08x", reg);
+        debug("read ehci status reg from:0x%08x\n", status_reg);
+        debug("read ehci status reg content:0x%08x\n", reg);
 		if (reg & EHCI_PS_CS)
 			tmpbuf[0] |= USB_PORT_STAT_CONNECTION;
 		if (reg & EHCI_PS_PE)
@@ -825,6 +846,7 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 		break;
 	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 		reg = ehci_readl(status_reg);
+        debug("port status when reset port init:0x%08x\n", reg);
 		reg &= ~EHCI_PS_CLEAR;
 		switch (le16_to_cpu(req->value)) {
 		case USB_PORT_FEAT_ENABLE:
@@ -858,7 +880,9 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 				 * usb 2.0 specification say 50 ms resets on
 				 * root
 				 */
-				ctrl->ops.powerup_fixup(ctrl, status_reg, &reg);
+				//ctrl->ops.powerup_fixup(ctrl, status_reg, &reg);  // just mdelay(50);
+                uint32_t count_ = 50000;  // critic time, too long or too short is not ok.
+                while(count_--);
 
 				ehci_writel(status_reg, reg & ~EHCI_PS_PR);
 				/*
@@ -870,6 +894,7 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 						2 * 1000);
 				if (!ret) {
 					reg = ehci_readl(status_reg);
+                    debug("port status when reset port:0x%08x\n", reg);
 					if ((reg & (EHCI_PS_PE | EHCI_PS_CS))
 					    == EHCI_PS_CS && !ehci_is_TDI()) {
 						debug("port %d full speed --> companion\n", port - 1);

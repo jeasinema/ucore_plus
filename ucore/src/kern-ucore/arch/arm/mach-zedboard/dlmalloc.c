@@ -1900,8 +1900,11 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
   /* Call malloc with worst case padding to hit alignment. */
 
   nb = request2size(bytes);
+  debug("before mALLOc in memalign\n");
+  // TODO: workaround by jeasinema@20170505
   m  = (char*)(mALLOc(nb + alignment + MINSIZE));
-
+  //return memalign_simple(alignment, bytes);
+  debug("malloc finished in memalign\n");
   /*
   * The attempt to over-allocate (with a size large enough to guarantee the
   * ability to find an aligned region within allocated memory) failed.
@@ -1917,7 +1920,6 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
      * each call increases the size to allocate, to account for the header.
      */
     m  = (char*)(mALLOc(bytes));
-    debug("malloc finished\n");
     /* Aligned -> return it */
     if ((((unsigned long)(m)) % alignment) == 0)
       return m;
@@ -1946,10 +1948,12 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
   if (m == NULL) return NULL; /* propagate failure */
 
+  debug("before mem2chunk\n");
   p = mem2chunk(m);
-
+  debug("after mem2chunk\n");
   if ((((unsigned long)(m)) % alignment) == 0) /* aligned */
   {
+      debug("mem is align\n");
 #if HAVE_MMAP
     if(chunk_is_mmapped(p))
       return chunk2mem(p); /* nothing more to do */
@@ -1957,6 +1961,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
   }
   else /* misaligned */
   {
+      debug("mem is not align\n");
     /*
       Find an aligned spot inside chunk.
       Since we need to give back leading space in a chunk of at
@@ -1984,10 +1989,18 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
     /* give back leader, use the rest */
 
+    debug("memalign 0\n");
     set_head(newp, newsize | PREV_INUSE);
-    set_inuse_bit_at_offset(newp, newsize);
-    set_head_size(p, leadsize);
-    fREe(chunk2mem(p));
+    debug("memalign 1\n");
+    // TODO
+    //set_inuse_bit_at_offset(newp, newsize);
+    debug("memalign 2\n");
+    // TODO
+    //set_head_size(p, leadsize);
+    debug("prepare free\n");
+    // TODO
+    //fREe(chunk2mem(p));
+    debug("after free\n");
     p = newp;
 
     //assert (newsize >= nb && (((unsigned long)(chunk2mem(p))) % alignment) == 0);
@@ -1997,6 +2010,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
   remainder_size = chunksize(p) - nb;
 
+    debug("memalign 3\n");
   if (remainder_size >= (long)MINSIZE)
   {
     remainder = chunk_at_offset(p, nb);
@@ -2005,7 +2019,10 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
     fREe(chunk2mem(remainder));
   }
 
-  check_inuse_chunk(p);
+    debug("memalign 4\n");
+    //TODO
+  //check_inuse_chunk(p);
+  debug("near return\n");
   return chunk2mem(p);
 
 }
@@ -2386,7 +2403,8 @@ int initf_malloc(void)
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
     //gd->malloc_base = 0xe0010000; //TODO work in qemu
-    gd->malloc_base = 0xc2400000; //TODO
+    gd->malloc_base = 0xc2300000; //TODO
+    //gd->malloc_base = 0xc7500000; //TODO
 #endif
 
 	return 0;

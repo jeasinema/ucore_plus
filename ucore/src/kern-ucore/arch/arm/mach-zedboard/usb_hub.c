@@ -228,7 +228,13 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 		if (err < 0)
 			return err;
 
+		uint32_t reg = *((uint32_t*)(0xe0002184));
+        debug("port status when reset port 0:0x%08x\n", reg);
+
 		mdelay(delay);
+
+		reg = *((uint32_t*)(0xe0002184));
+        debug("port status when reset port 1:0x%08x\n", reg);
 
 		if (usb_get_port_status(dev, port + 1, portsts) < 0) {
 			debug("get_port_status failed status %lX\n",
@@ -294,6 +300,7 @@ int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat)
 
 int usb_hub_port_connect_change(struct usb_device *dev, int port)
 {
+    debug("into connect changes\n");
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus;
 	int ret, speed;
@@ -304,6 +311,7 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 		debug("get_port_status failed\n");
 		return ret;
 	}
+    debug("after get port status in connect changes\n");
 
 	portstatus = le16_to_cpu(portsts->wPortStatus);
 	debug("portstatus %x, change %x, %s\n",
@@ -329,6 +337,7 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	if (ret < 0) {
 		if (ret != -ENXIO)
 			kprintf("cannot reset port %i!?\n", port + 1);
+        debug("failed to reset port\n");
 		return ret;
 	}
 

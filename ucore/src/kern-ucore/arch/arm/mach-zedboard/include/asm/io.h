@@ -59,7 +59,11 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 
 static inline phys_addr_t virt_to_phys(void * vaddr)
 {
-	return (phys_addr_t)(vaddr);
+    // TODO add by jeasinema@20170505
+    phys_addr_t paddr = (phys_addr_t)((uint32_t)vaddr & 0x0FFFFFFF);
+    debug("phys:0x%08x from vadr:0x%08x\n", (uint32_t)paddr, (uint32_t)vaddr);
+	return paddr;
+    //return (phys_addr_t)(vaddr);
 }
 
 /*

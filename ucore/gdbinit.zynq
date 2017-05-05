@@ -1,5 +1,5 @@
 file obj/kernel/kernel-arm.elf
-layout src
+#layout src
 define hook-stop
 x/2i $pc
 i r

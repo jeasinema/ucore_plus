@@ -933,13 +933,16 @@ static int usb_hub_port_reset(struct usb_device *dev, struct usb_device *hub)
 
 static int get_descriptor_len(struct usb_device *dev, int len, int expect_len)
 {
+    debug("into get_descriptor_len\n");
 	__maybe_unused struct usb_device_descriptor *desc;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
 	int err;
 
 	desc = (struct usb_device_descriptor *)tmpbuf;
 
+    debug("into get_descriptor_len, before get descriptor\n");
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, len);
+    debug("finish usb_get_descriptor, err:%d\n", err);
 	if (err < expect_len) {
 		if (err < 0) {
 			kprintf("unable to get device descriptor (error=%d)\n",
@@ -952,6 +955,7 @@ static int get_descriptor_len(struct usb_device *dev, int len, int expect_len)
 		}
 	}
 	memcpy(&dev->descriptor, tmpbuf, sizeof(dev->descriptor));
+    debug("finish memcpy in get_descriptor_len\n");
 
 	return 0;
 }
@@ -1046,16 +1050,22 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 		kprintf("Cannot allocate device context to get SLOT_ID\n");
 		return err;
 	}
+    debug("before setup descriptor\n");
 	err = usb_setup_descriptor(dev, do_read);
+    debug("after setup descriptor\n");
 	if (err)
 		return err;
+    debug("before hub reset\n");
 	err = usb_hub_port_reset(dev, parent);
+    debug("after hub reset\n");
 	if (err)
 		return err;
 
 	dev->devnum = addr;
 
+    debug("before hub reset\n");
 	err = usb_set_address(dev); /* set address */
+    debug("after hub reset\n");
 
 	if (err < 0) {
 		kprintf("\n      USB device not accepting new address " \
@@ -1161,10 +1171,14 @@ int usb_setup_device(struct usb_device *dev, bool do_read,
 	addr = dev->devnum;
 	dev->devnum = 0;
 
+    debug("before prepare device\n");
 	ret = usb_prepare_device(dev, addr, do_read, parent);
+    debug("after prepare device\n");
 	if (ret)
 		return ret;
+    debug("before select config\n");
 	ret = usb_select_config(dev);
+    debug("after select config\n");
 
 	return ret;
 }
@@ -1196,6 +1210,7 @@ int usb_new_device(struct usb_device *dev)
         debug("read ehci status reg before setup device content:0x%08x\n", reg);
 
 	err = usb_setup_device(dev, do_read, dev->parent);
+    debug("finish setup device, err:%d\n", err);
 	if (err)
 		return err;
 
