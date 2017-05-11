@@ -22,11 +22,12 @@
  * The EHCI spec says that we must align to at least 32 bytes.  However,
  * some platforms require larger alignment.
  */
-#if ARCH_DMA_MINALIGN > 32
-#define USB_DMA_MINALIGN	ARCH_DMA_MINALIGN
-#else
-#define USB_DMA_MINALIGN	32
-#endif
+//#if ARCH_DMA_MINALIGN > 32
+//#define USB_DMA_MINALIGN	ARCH_DMA_MINALIGN
+//#else
+//#define USB_DMA_MINALIGN	32
+//#endif
+#define USB_DMA_MINALIGN	64
 
 /* Everything is aribtrary */
 #define USB_ALTSETTINGALLOC		4

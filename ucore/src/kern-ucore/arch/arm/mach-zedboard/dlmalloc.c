@@ -1239,6 +1239,7 @@ Void_t* mALLOc(size_t bytes)
 Void_t* mALLOc(bytes) size_t bytes;
 #endif
 {
+    debug("call mALLOc\n");
   mchunkptr victim;                  /* inspected/selected chunk */
   INTERNAL_SIZE_T victim_size;       /* its size */
   int       idx;                     /* index for bin traversal */
@@ -1255,9 +1256,10 @@ Void_t* mALLOc(bytes) size_t bytes;
   INTERNAL_SIZE_T nb;
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-    kprintf("hahahaha\n");
-	//if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
-	return malloc_simple(bytes);
+    //TODO: jeasinema, because gd is not initialized properly, so we just bypass this
+	//if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
+    //    return malloc_simple(bytes);
+    //}
 #endif
 
   /* check if mem_malloc_init() was run */
@@ -1524,9 +1526,10 @@ void fREe(mem) Void_t* mem;
   int       islr;      /* track whether merging with last_remainder */
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
+    //TODO: jeasinema, because gd is not initialized properly, so we just bypass this
 	/* free() is a no-op - all the memory will be freed on relocation */
-	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
-		return;
+	//if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
+	//	return;
 #endif
 
   if (mem == NULL)                              /* free(0) has no effect */
@@ -1681,11 +1684,12 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
   if (oldmem == NULL) return mALLOc(bytes);
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
-		/* This is harder to support and should not be needed */
-		//panic("pre-reloc realloc() is not supported");
-		kprintf("pre-reloc realloc() is not supported");
-	}
+    //TODO: jeasinema, because gd is not initialized properly, so we just bypass this
+	//if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
+	//	/* This is harder to support and should not be needed */
+	//	//panic("pre-reloc realloc() is not supported");
+	//	kprintf("pre-reloc realloc() is not supported");
+	//}
 #endif
 
   newp    = oldp    = mem2chunk(oldmem);
@@ -1877,6 +1881,7 @@ Void_t* mEMALIGn(size_t alignment, size_t bytes)
 Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 #endif
 {
+    debug("call mEMALIGn\n");
   INTERNAL_SIZE_T    nb;      /* padded  request size */
   char*     m;                /* memory returned by malloc call */
   mchunkptr p;                /* corresponding chunk */
@@ -1901,9 +1906,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
   nb = request2size(bytes);
   debug("before mALLOc in memalign\n");
-  // TODO: workaround by jeasinema@20170505
   m  = (char*)(mALLOc(nb + alignment + MINSIZE));
-  //return memalign_simple(alignment, bytes);
   debug("malloc finished in memalign\n");
   /*
   * The attempt to over-allocate (with a size large enough to guarantee the
@@ -1991,15 +1994,15 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
     debug("memalign 0\n");
     set_head(newp, newsize | PREV_INUSE);
-    debug("memalign 1\n");
+    debug("memalign 1, 0x%08x, 0x%08x\n", newp, newsize);
     // TODO
-    //set_inuse_bit_at_offset(newp, newsize);
+    set_inuse_bit_at_offset(newp, newsize);
     debug("memalign 2\n");
     // TODO
-    //set_head_size(p, leadsize);
+    set_head_size(p, leadsize);
     debug("prepare free\n");
     // TODO
-    //fREe(chunk2mem(p));
+    fREe(chunk2mem(p));
     debug("after free\n");
     p = newp;
 
@@ -2021,7 +2024,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
     debug("memalign 4\n");
     //TODO
-  //check_inuse_chunk(p);
+  check_inuse_chunk(p);
   debug("near return\n");
   return chunk2mem(p);
 
@@ -2073,6 +2076,7 @@ Void_t* cALLOc(size_t n, size_t elem_size)
 Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
 #endif
 {
+  debug("call complex calloc\n");
   mchunkptr p;
   INTERNAL_SIZE_T csz;
 
@@ -2088,7 +2092,7 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
 #endif
   Void_t* mem = mALLOc (sz);
     // TODO fix by jeasinema@20170503
-    return mem;
+    //return mem;
 
 
   if ((long)n < 0) return NULL;
@@ -2098,10 +2102,11 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
   else
   {
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
-		MALLOC_ZERO(mem, sz);
-		return mem;
-	}
+    //TODO: jeasinema, because gd is not initialized properly, so we just bypass this
+	//if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
+	//	MALLOC_ZERO(mem, sz);
+	//	return mem;
+	//}
 #endif
     p = mem2chunk(mem);
 
@@ -2400,10 +2405,11 @@ int initf_malloc(void)
 {
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 	//assert(gd->malloc_base);	/* Set up by crt0.S */
+    debug("gd is:0x%08x\n", gd);
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
     //gd->malloc_base = 0xe0010000; //TODO work in qemu
-    gd->malloc_base = 0xc2300000; //TODO
+    //gd->malloc_base = 0xc2300000; //TODO
     //gd->malloc_base = 0xc7500000; //TODO
 #endif
 

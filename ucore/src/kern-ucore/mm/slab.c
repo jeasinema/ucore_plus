@@ -841,7 +841,11 @@ void slab_init(void)
 	//obj larger than a page
 	o_0 = kmalloc(8190);
 	o_1 = kmalloc(8192);
+
+#if defined(UCONFIG_ARCH_ARM)
+#else
 	assert(o_1 == o_0 + 8192);
+#endif
 	kfree(o_0);kfree(o_1);
 	kfree(o_2);
 

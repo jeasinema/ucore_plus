@@ -213,7 +213,11 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 			unsigned short *portstat)
 {
 	int err, tries;
-	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
+
+    // todo: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(zynq trm p113)", so we map it to heap
+    struct usb_port_status *portsts = memalign(USB_DMA_MINALIGN, sizeof(struct usb_port_status));
+    //ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
+
 	unsigned short portstatus, portchange;
 	int delay = HUB_SHORT_RESET_TIME; /* start with short reset delay */
 
@@ -301,7 +305,11 @@ int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat)
 int usb_hub_port_connect_change(struct usb_device *dev, int port)
 {
     debug("into connect changes\n");
-	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
+
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    struct usb_port_status *portsts = memalign(USB_DMA_MINALIGN, sizeof(struct usb_port_status));
+	//ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
+
 	unsigned short portstatus;
 	int ret, speed;
 
@@ -396,8 +404,12 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
         debug("read ehci status reg before scan port content:0x%08x\n", reg);
 
     debug("start scan port\n");
-	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
-	unsigned short portstatus;
+
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    struct usb_port_status *portsts = memalign(USB_DMA_MINALIGN, sizeof(struct usb_port_status));
+	//ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
+	
+    unsigned short portstatus;
 	unsigned short portchange;
 	struct usb_device *dev;
 	struct usb_hub_device *hub;
@@ -412,8 +424,9 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 	 * Don't talk to the device before the query delay is expired.
 	 * This is needed for voltages to stabalize.
 	 */
-	if (get_timer(0) < hub->query_delay)
-		return 0;
+    //TODO: add by jeasinema@20170510
+	//if (get_timer(0) < hub->query_delay)
+	//	return 0;
     
     // TODO add by jeasinema@20170503
     uint32_t _wait_ = 10000;
@@ -428,6 +441,7 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
     _wait_ = 1000000;
     while(_wait_--);
 
+    // TODO: because get_timer() is not properly implemented, we should fix that later
 	if (ret < 0) {
 		debug("get_port_status failed\n");
 		if (get_timer(0) >= hub->connect_timeout) {
@@ -574,7 +588,11 @@ out:
 static int usb_hub_configure(struct usb_device *dev)
 {
 	int i, length;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, USB_BUFSIZ);
+    
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    unsigned char *buffer = memalign(USB_DMA_MINALIGN, USB_BUFSIZ*sizeof(unsigned char));
+	//ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, USB_BUFSIZ);
+
 	unsigned char *bitmap;
 	short hubCharacteristics;
 	struct usb_hub_descriptor *descriptor;
@@ -716,7 +734,7 @@ static int usb_hub_configure(struct usb_device *dev)
 	for (i = 0; i < dev->maxchild; i++) {
 		struct usb_device_scan *usb_scan;
 
-		usb_scan = calloc(1, sizeof(struct usb_device_scan));
+		usb_scan = calloc(1, sizeof(*usb_scan));
         debug("finish a calloc\n");
 		if (!usb_scan) {
 			kprintf("Can't allocate memory for USB device!\n");

@@ -35,6 +35,7 @@
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
+#include <memalign.h>
 #include <errno.h>
 #include <usb.h>
 #ifdef CONFIG_4xx
@@ -59,6 +60,8 @@ static int dev_index;
  */
 int usb_init(void)
 {
+    // TODO:add by jeasinema
+    memset(&usb_dev, 0, sizeof(usb_dev));
 	void *ctrl;
 	struct usb_device *dev;
 	int i, start_index = 0;
@@ -99,11 +102,12 @@ int usb_init(void)
 		uint32_t reg = *((uint32_t*)(0xe0002184));
         debug("pre read ehci status reg content:0x%08x", reg);
 
-
 		controllers_initialized++;
 		start_index = dev_index;
 		kprintf("scanning bus %d for devices... ", i);
+        debug("++++HEAP++++1:0x%08x\n", dev);
 		ret = usb_alloc_new_device(ctrl, &dev);
+        debug("++++HEAP++++2:0x%08x\n", dev);
 		if (ret)
 			break;
 
@@ -224,7 +228,10 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 			unsigned short value, unsigned short index,
 			void *data, unsigned short size, int timeout)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(struct devrequest, setup_packet, 1);
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    struct devrequest *setup_packet = memalign(USB_DMA_MINALIGN, sizeof(struct devrequest));
+    //ALLOC_CACHE_ALIGN_BUFFER(struct devrequest, setup_packet, 1);
+
 	int err;
 
 	if ((timeout == 0) && (!asynch_allowed)) {
@@ -577,8 +584,11 @@ static int usb_get_descriptor(struct usb_device *dev, unsigned char type,
 int usb_get_configuration_len(struct usb_device *dev, int cfgno)
 {
 	int result;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, 9);
-	struct usb_config_descriptor *config;
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    unsigned char *buffer = memalign(USB_DMA_MINALIGN, 9*sizeof(unsigned char));
+	//ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, 9);
+	
+    struct usb_config_descriptor *config;
 
 	config = (struct usb_config_descriptor *)&buffer[0];
 	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 9);
@@ -810,7 +820,10 @@ static int usb_string_sub(struct usb_device *dev, unsigned int langid,
  */
 int usb_string(struct usb_device *dev, int index, char *buf, size_t size)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, mybuf, USB_BUFSIZ);
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    unsigned char *mybuf = memalign(USB_DMA_MINALIGN, USB_BUFSIZ*sizeof(unsigned char));
+	//ALLOC_CACHE_ALIGN_BUFFER(unsigned char, mybuf, USB_BUFSIZ);
+
 	unsigned char *tbuf;
 	int err;
 	unsigned int u, idx;
@@ -935,8 +948,12 @@ static int get_descriptor_len(struct usb_device *dev, int len, int expect_len)
 {
     debug("into get_descriptor_len\n");
 	__maybe_unused struct usb_device_descriptor *desc;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
-	int err;
+
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    unsigned char *tmpbuf = memalign(USB_DMA_MINALIGN, USB_BUFSIZ*sizeof(unsigned char));
+	//ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
+	
+    int err;
 
 	desc = (struct usb_device_descriptor *)tmpbuf;
 

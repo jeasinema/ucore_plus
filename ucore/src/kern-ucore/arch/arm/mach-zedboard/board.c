@@ -57,13 +57,23 @@ void board_init_early()
 	serial_init(port);  // for the sake of debug, init serial in advance
 
 #if defined(UCONFIG_ZYNQ_USB)
-    //usb_stop();
     initf_malloc();
-    //do_usb_start();
+    mem_malloc_init(0xc2300000, 0xFFFFF);
+    usb_stop();
+    do_usb_start();
     kprintf("prepare for show tree\n");
-    //usb_show_tree();
+    usb_show_tree();
 
 #endif
+    // test memory
+    //uint32_t start_addr = 0xc0008000;
+    //uint32_t end_addr = 0xc7FFFFFF;
+    //for (uint32_t i = start_addr; i < end_addr;) {
+    //    kprintf("0x%08x:0x%08x\n", i, *(uint32_t*)i);
+    //    i += 0x10000;
+    //}
+    
+
 }
 
 

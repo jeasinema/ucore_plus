@@ -15,6 +15,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void *malloc_simple(size_t bytes)
 {
+    debug("++++++++++++++++++\n");
 	ulong new_ptr;
 	void *ptr;
 
@@ -30,6 +31,33 @@ void *malloc_simple(size_t bytes)
     debug("hahaha\n");
     debug("%lx\n", (ulong)ptr);
     
+    //if ((uint32_t)ptr == 0xc2302084) {
+    //    // test memory
+    //    uint32_t start_addr = 0xc0008000;
+    //    uint32_t end_addr = 0xc7FFFFFF;
+    //    for (uint32_t i = start_addr; i < end_addr;) {
+    //        kprintf("0x%08x:0x%08x\n", i, *(uint32_t*)i);
+    //        uint32_t tmp = *(uint32_t*)i;
+    //        tmp ++;
+    //        tmp --;
+    //        *(uint32_t*)i = tmp;
+    //        i += 0x10000;
+    //    }
+
+    //    int count = 10000;
+    //    uint32_t tmp_ptr = (uint32_t)(0xc2302000);
+    //    kprintf("now calc here\n");
+    //    while (count--) {
+    //        kprintf("0x%08x:0x%08x\n", tmp_ptr, *(uint32_t*)tmp_ptr);
+    //        uint32_t tmp = *(uint32_t*)tmp_ptr;
+    //        tmp++;
+    //        tmp--;
+    //        *(uint32_t*)tmp_ptr = tmp;
+    //        debug("finish write\n");
+    //        tmp_ptr += 4;
+    //    }
+    //}
+   
     //debug("debug mem!\n");
     //int count = 11;
     //while (count--) {
@@ -44,6 +72,7 @@ void *malloc_simple(size_t bytes)
 
 void *memalign_simple(size_t align, size_t bytes)
 {
+    debug("++++++++++++++++++\n");
     debug("into memalign simple\n");
 	ulong addr, new_ptr;
 	void *ptr;
@@ -66,14 +95,13 @@ void *memalign_simple(size_t align, size_t bytes)
 #if CONFIG_IS_ENABLED(SYS_MALLOC_SIMPLE)
 void *calloc(size_t nmemb, size_t elem_size)
 {
+    debug("++++++++++++++++++\n");
 	size_t size = nmemb * elem_size;
 	void *ptr;
 
     debug("before a calloc\n");
-    // TODO: fix by jeasinema@20170503
-	//ptr = malloc(size);
-	ptr = malloc_simple(size);
-	//memset(ptr, '\0', size);
+	ptr = malloc(size);
+	memset(ptr, '\0', size);
 
     debug("after a calloc\n");
 	return ptr;

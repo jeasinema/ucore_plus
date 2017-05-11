@@ -163,6 +163,7 @@ static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 	do {
 		result = ehci_readl(ptr);
 		udelay(5);
+        debug("handshaking!0x%08x:0x%08x\n", ptr, result);
 		if (result == ~(uint32_t)0)
 			return -1;
 		result &= mask;
@@ -319,7 +320,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
     debug("usbsts:0x%08x\n",*(uint32_t*)(0xe0002144));
     debug("portsc:0x%08x\n",*(uint32_t*)(0xe0002184));
 
-	ALLOC_ALIGN_BUFFER(struct QH, qh, 1, USB_DMA_MINALIGN);
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+	//ALLOC_ALIGN_BUFFER(struct QH, qh, 1, USB_DMA_MINALIGN);
+    struct QH *qh = memalign(USB_DMA_MINALIGN, sizeof(struct QH));
+
+    debug("qh is 0x%08x\n", qh);
 	struct qTD *qtd;
 	int qtd_count = 0;
 	int qtd_counter = 0;
@@ -411,6 +416,8 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	memset(qh, 0, sizeof(struct QH));
 	memset(qtd, 0, qtd_count * sizeof(*qtd));
+
+
 
 	toggle = usb_gettoggle(dev, usb_pipeendpoint(pipe), usb_pipeout(pipe));
 
@@ -571,6 +578,24 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	/* Set async. queue head pointer. */
 	ehci_writel(&ctrl->hcor->or_asynclistaddr, virt_to_phys(&ctrl->qh_list));
+    debug("&ctrl->...->or_asynclistaddr:0x%08x\n", &ctrl->hcor->or_asynclistaddr);
+
+    debug("&qh is:0x%08x, size is:%d\n", qh, sizeof(struct QH));
+    uint32_t debug_count = 20;
+    while (debug_count--) {
+        debug("0x%08x:0x%08x\n", (uint32_t*)qh+(19-debug_count), *((uint32_t*)qh+(19-debug_count)));
+    }
+    debug("&qtd is:0x%08x, size is:%d\n", qtd, sizeof(*qtd));
+    debug_count = 20;
+    while (debug_count--) {
+        debug("0x%08x:0x%08x\n", (uint32_t*)qtd+(19-debug_count), *((uint32_t*)qtd+(19-debug_count)));
+    }
+
+    debug("&ehcic[index] is:0x%08x, size is:%d\n", &(ctrl->qh_list), sizeof(ctrl->qh_list));
+    debug_count = 20;
+    while (debug_count--) {
+        debug("0x%08x:0x%08x\n", (uint32_t*)&(ctrl->qh_list)+(19-debug_count), *((uint32_t*)&(ctrl->qh_list)+(19-debug_count)));
+    }
 
 	usbsts = ehci_readl(&ctrl->hcor->or_usbsts);
 	ehci_writel(&ctrl->hcor->or_usbsts, (usbsts & 0x3f));
@@ -881,7 +906,7 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 				 * root
 				 */
 				//ctrl->ops.powerup_fixup(ctrl, status_reg, &reg);  // just mdelay(50);
-                uint32_t count_ = 50000;  // critic time, too long or too short is not ok.
+                uint32_t count_ = 50000;  // critical time, too long or too short is not ok.
                 while(count_--);
 
 				ehci_writel(status_reg, reg & ~EHCI_PS_PR);
@@ -1141,8 +1166,19 @@ int usb_lowlevel_stop(int index)
 
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
+    // TODO:add by jeasinema
+    debug("&ehcic is:0x%08x, index:%d\n", &ehcic, index);
+    memset(&ehcic, 0, sizeof(ehcic));
+
 	struct ehci_ctrl *ctrl = &ehcic[index];
-	uint tweaks = 0;
+    
+    debug("&ehcic[index] is:\n");
+    uint32_t debug_count = 10;
+    while (debug_count--) {
+        debug("0x%08x:0x%08x\n", (uint32_t*)&ehcic[index]+(9-debug_count), *((uint32_t*)&ehcic[index]+(9-debug_count)));
+    }
+	
+        uint tweaks = 0;
 	int rc;
 
 	/**

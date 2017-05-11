@@ -101,23 +101,25 @@ struct usb_linux_config_descriptor {
 	unsigned char	MaxPower;
 } __attribute__ ((packed));
 
-#if defined CONFIG_EHCI_DESC_BIG_ENDIAN
-#define ehci_readl(x)		cpu_to_be32((*((volatile u32 *)(x))))
-#define ehci_writel(a, b)	(*((volatile u32 *)(a)) = \
-					cpu_to_be32(((volatile u32)b)))
-#else
+// TODO:jeasinema@20170508
+//#if defined CONFIG_EHCI_DESC_BIG_ENDIAN
+//#define ehci_readl(x)		cpu_to_be32((*((volatile u32 *)(x))))
+//#define ehci_writel(a, b)	(*((volatile u32 *)(a)) = \
+//					cpu_to_be32(((volatile u32)b)))
+//#else
 #define ehci_readl(x)		cpu_to_le32((*((volatile u32 *)(x))))
 #define ehci_writel(a, b)	(*((volatile u32 *)(a)) = \
 					cpu_to_le32(((volatile u32)b)))
-#endif
+//#endif
 
-#if defined CONFIG_EHCI_MMIO_BIG_ENDIAN
-#define hc32_to_cpu(x)		be32_to_cpu((x))
-#define cpu_to_hc32(x)		cpu_to_be32((x))
-#else
+// TODO:jeasinema@20170508
+//#if defined CONFIG_EHCI_MMIO_BIG_ENDIAN
+//#define hc32_to_cpu(x)		be32_to_cpu((x))
+//#define cpu_to_hc32(x)		cpu_to_be32((x))
+//#else
 #define hc32_to_cpu(x)		le32_to_cpu((x))
 #define cpu_to_hc32(x)		cpu_to_le32((x))
-#endif
+//#endif
 
 #define EHCI_PS_WKOC_E		(1 << 22)	/* RW wake on over current */
 #define EHCI_PS_WKDSCNNT_E	(1 << 21)	/* RW wake on disconnect */

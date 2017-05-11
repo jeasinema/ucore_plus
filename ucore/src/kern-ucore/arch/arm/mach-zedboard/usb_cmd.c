@@ -21,6 +21,7 @@
 #include <asm/unaligned.h>
 #include <part.h>
 #include <usb.h>
+#include <memalign.h>
 
 #ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev = -1; /* current device */
@@ -140,7 +141,9 @@ void usb_display_class_sub(unsigned char dclass, unsigned char subclass,
 
 void usb_display_string(struct usb_device *dev, int index)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(char, buffer, 256);
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    char *buffer = memalign(USB_DMA_MINALIGN, 256*sizeof(char));
+    //ALLOC_CACHE_ALIGN_BUFFER(char, buffer, 256);
 
 	if (index != 0) {
 		if (usb_string(dev, index, &buffer[0], 256) > 0)

@@ -182,7 +182,9 @@ int usb_stor_info(void)
 static unsigned int usb_get_max_lun(struct us_data *us)
 {
 	int len;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, result, 1);
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    unsigned char *result = memalign(USB_DMA_MINALIGN, sizeof(unsigned char));
+	//ALLOC_CACHE_ALIGN_BUFFER(unsigned char, result, 1);
 	len = usb_control_msg(us->pusb_dev,
 			      usb_rcvctrlpipe(us->pusb_dev, 0),
 			      US_BBB_GET_MAX_LUN,
@@ -547,7 +549,9 @@ static int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
 	int actlen;
 	int dir_in;
 	unsigned int pipe;
-	ALLOC_CACHE_ALIGN_BUFFER(struct umass_bbb_cbw, cbw, 1);
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    struct umass_bbb_cbw *cbw = memalign(USB_DMA_MINALIGN, sizeof(struct umass_bbb_cbw));
+	//ALLOC_CACHE_ALIGN_BUFFER(struct umass_bbb_cbw, cbw, 1);
 
 	dir_in = US_DIRECTION(srb->cmd[0]);
 
@@ -723,7 +727,11 @@ static int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 	int dir_in;
 	int actlen, data_actlen;
 	unsigned int pipe, pipein, pipeout;
-	ALLOC_CACHE_ALIGN_BUFFER(struct umass_bbb_csw, csw, 1);
+
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    struct umass_bbb_csw *csw = memalign(USB_DMA_MINALIGN, sizeof(struct umass_bbb_csw));
+	//ALLOC_CACHE_ALIGN_BUFFER(struct umass_bbb_csw, csw, 1);
+
 #ifdef BBB_XPORT_TRACE
 	unsigned char *ptr;
 	int index;
@@ -1395,8 +1403,13 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 		      struct blk_desc *dev_desc)
 {
 	unsigned char perq, modi;
-	ALLOC_CACHE_ALIGN_BUFFER(u32, cap, 2);
-	ALLOC_CACHE_ALIGN_BUFFER(u8, usb_stor_buf, 36);
+
+    // TODO: fix by jeasinema@20170511, because current stack addr range cannot be accessed by "other bus master(ZYNQ TRM P113)", so we map it to heap
+    u32 *cap = memalign(USB_DMA_MINALIGN, 2*sizeof(u32));
+    u8 *usb_stor_buf = memalign(USB_DMA_MINALIGN, 36*sizeof(u8));
+	//ALLOC_CACHE_ALIGN_BUFFER(u32, cap, 2);
+	//ALLOC_CACHE_ALIGN_BUFFER(u8, usb_stor_buf, 36);
+
 	u32 capacity, blksz;
 	ccb *pccb = &usb_ccb;
 
