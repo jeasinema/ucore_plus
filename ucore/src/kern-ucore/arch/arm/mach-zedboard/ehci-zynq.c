@@ -36,7 +36,7 @@ int ehci_hcd_init(int index,  enum usb_init_type init, struct ehci_hccr **hccr,
 	if (!index) {
 		mio_usb = zynq_slcr_get_mio_pin_status("usb0");
 		if (mio_usb != ZYNQ_USB_NUM_MIO) {
-			kprintf("usb0 wrong num MIO: %d, Index %d\n", mio_usb,
+			debug("usb0 wrong num MIO: %d, Index %d\n", mio_usb,
 			       index);
 			return -1;
 		}
@@ -44,7 +44,7 @@ int ehci_hcd_init(int index,  enum usb_init_type init, struct ehci_hccr **hccr,
 	} else {
 		mio_usb = zynq_slcr_get_mio_pin_status("usb1");
 		if (mio_usb != ZYNQ_USB_NUM_MIO) {
-			kprintf("usb1 wrong num MIO: %d, Index %d\n", mio_usb,
+			debug("usb1 wrong num MIO: %d, Index %d\n", mio_usb,
 			       index);
 			return -1;
 		}
@@ -65,7 +65,7 @@ int ehci_hcd_init(int index,  enum usb_init_type init, struct ehci_hccr **hccr,
         debug("read ehci status reg after ulpi init:0x%08x\n", reg);
 
 	if (ret) {
-		kprintf("zynq ULPI viewport init failed\n");
+		debug("zynq ULPI viewport init failed\n");
 		return -1;
 	}
 

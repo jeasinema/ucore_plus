@@ -14,7 +14,7 @@
 #define CONFIG_SYS_SDRAM_SIZE		(512 * 1024 * 1024)
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SPL_LOAD_FIT_ADDRESS  0x40000
-#define DEBUG
+//#define DEBUG
 
 #include <zynq-common.h>
 

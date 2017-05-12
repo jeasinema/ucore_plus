@@ -116,8 +116,12 @@ typedef volatile unsigned char	vu_char;
 			kprintf(pr_fmt(fmt), ##args);	\
 	} while (0)
 
-#define debug(fmt, args...)			\
-	debug_cond(_DEBUG, fmt, ##args)
+//#ifdef DEBUG
+//#define debug(fmt, args...)			\
+//	debug_cond(_DEBUG, fmt, ##args)
+//#else
+#define debug(fmt, args...) 
+//#endif
 
 /*
  * An assertion is run-time check done in debug mode only. If DEBUG is not

@@ -201,7 +201,7 @@ void zynq_slcr_gem_clk_setup(u32 gem_id, unsigned long clk_rate)
 	zynq_slcr_unlock();
 
 	if (gem_id > 1) {
-		kprintf("Non existing GEM id %d\n", gem_id);
+		debug("Non existing GEM id %d\n", gem_id);
 		goto out;
 	}
 

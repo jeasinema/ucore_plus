@@ -1688,7 +1688,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	//if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
 	//	/* This is harder to support and should not be needed */
 	//	//panic("pre-reloc realloc() is not supported");
-	//	kprintf("pre-reloc realloc() is not supported");
+	//	debug("pre-reloc realloc() is not supported");
 	//}
 #endif
 
@@ -2334,11 +2334,11 @@ static void malloc_update_mallinfo()
 void malloc_stats()
 {
   malloc_update_mallinfo();
-  kprintf("max system bytes = %10u\n",
+  debug("max system bytes = %10u\n",
 	  (unsigned int)(max_total_mem));
-  kprintf("system bytes     = %10u\n",
+  debug("system bytes     = %10u\n",
 	  (unsigned int)(sbrked_mem + mmapped_mem));
-  kprintf("in use bytes     = %10u\n",
+  debug("in use bytes     = %10u\n",
 	  (unsigned int)(current_mallinfo.uordblks + mmapped_mem));
 #if HAVE_MMAP
   printf("max mmap regions = %10u\n",

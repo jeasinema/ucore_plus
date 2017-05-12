@@ -181,7 +181,7 @@ static struct usb_hub_device *usb_hub_allocate(void)
 	if (usb_hub_index < USB_MAX_HUB)
 		return &hub_dev[usb_hub_index++];
 
-	kprintf("ERROR: USB_MAX_HUB (%d) reached\n", USB_MAX_HUB);
+	debug("ERROR: USB_MAX_HUB (%d) reached\n", USB_MAX_HUB);
 	return NULL;
 }
 
@@ -344,7 +344,7 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	ret = legacy_hub_port_reset(dev, port, &portstatus);
 	if (ret < 0) {
 		if (ret != -ENXIO)
-			kprintf("cannot reset port %i!?\n", port + 1);
+			debug("cannot reset port %i!?\n", port + 1);
         debug("failed to reset port\n");
 		return ret;
 	}
@@ -373,7 +373,7 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 	ret = usb_alloc_new_device(dev->controller, &usb);
 	if (ret) {
-		kprintf("cannot create new device: ret=%d", ret);
+		debug("cannot create new device: ret=%d", ret);
 		return ret;
 	}
 
@@ -526,7 +526,7 @@ static int usb_scan_port(struct usb_device_scan *usb_scan)
 			return 0;
 
 		/* Otherwise the device will get removed */
-		kprintf("Port %d over-current occurred %d times\n", i + 1,
+		debug("Port %d over-current occurred %d times\n", i + 1,
 		       hub->overcurrent_count[i]);
 	}
 
@@ -737,7 +737,7 @@ static int usb_hub_configure(struct usb_device *dev)
 		usb_scan = calloc(1, sizeof(*usb_scan));
         debug("finish a calloc\n");
 		if (!usb_scan) {
-			kprintf("Can't allocate memory for USB device!\n");
+			debug("Can't allocate memory for USB device!\n");
 			return -ENOMEM;
 		}
 		usb_scan->dev = dev;

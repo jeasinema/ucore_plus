@@ -27,6 +27,10 @@
 extern void usb_stop(void);
 extern void do_usb_start(void);
 extern void usb_show_tree(void);
+extern int drv_usb_kbd_init(void);
+extern int usb_get_keyboard(void);
+extern int usb_kbd_getc(int);
+
 
 static const char *message = "Initializing ZEDBOARD...\n";
 
@@ -63,17 +67,21 @@ void board_init_early()
     do_usb_start();
     kprintf("prepare for show tree\n");
     usb_show_tree();
-
-#endif
-    // test memory
-    //uint32_t start_addr = 0xc0008000;
-    //uint32_t end_addr = 0xc7FFFFFF;
-    //for (uint32_t i = start_addr; i < end_addr;) {
-    //    kprintf("0x%08x:0x%08x\n", i, *(uint32_t*)i);
-    //    i += 0x10000;
-    //}
+    int kbd_id = usb_get_keyboard();
+    //drv_usb_kbd_init();  do_usb_start already call drv_usb_kbd_init()
     
-
+    // demo usb keyboard shell
+    const char kbd_prompt[] = "usb_kbd>";
+    kprintf("USB keybaord demo console!\n");
+    kprintf("\n%s", kbd_prompt);
+    while (kbd_id >= 0) {
+        int charc = usb_kbd_getc(kbd_id);
+        if (charc == '\n') 
+            kprintf("\n%s", kbd_prompt);
+        else 
+            kprintf("%c", charc);
+    }
+#endif
 }
 
 

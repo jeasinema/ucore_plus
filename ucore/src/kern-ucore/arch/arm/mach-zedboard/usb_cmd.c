@@ -574,7 +574,7 @@ void do_usb_start(void)
 {
         // TODO: add by jeasinema@20170504
 		uint32_t reg = *((uint32_t*)(0xe0002184));
-        debug("read ehci status reg before lowlevel init:0x%08x\n", reg);
+        kprintf("read ehci status reg before lowlevel init:0x%08x\n", reg);
 
 	bootstage_mark_name(BOOTSTAGE_ID_USB_START, "usb_start");
 
@@ -733,7 +733,7 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					ok++;
 					if (devno)
 						kprintf("\n");
-					debug("print_part of %x\n", devno);
+					kprintf("print_part of %x\n", devno);
 					part_print(stor_dev);
 				}
 			}
@@ -743,7 +743,7 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (stor_dev != NULL &&
 			    stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
-				debug("print_part of %x\n", devno);
+				kprintf("print_part of %x\n", devno);
 				part_print(stor_dev);
 			}
 		}

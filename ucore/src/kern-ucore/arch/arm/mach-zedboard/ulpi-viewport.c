@@ -65,7 +65,7 @@ static int ulpi_wakeup(struct ulpi_viewport *ulpi_vp)
 
 	err = ulpi_wait(ulpi_vp, ULPI_WU);
 	if (err)
-		kprintf("ULPI wakeup timed out\n");
+		debug("ULPI wakeup timed out\n");
 
 	return err;
 }
@@ -87,7 +87,7 @@ static int ulpi_request(struct ulpi_viewport *ulpi_vp, u32 value)
 
 	err = ulpi_wait(ulpi_vp, ULPI_RWRUN);
 	if (err)
-		kprintf("ULPI request timed out\n");
+		debug("ULPI request timed out\n");
 
 	return err;
 }

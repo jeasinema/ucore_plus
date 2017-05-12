@@ -81,16 +81,16 @@ int usb_init(void)
 	/* init low_level USB */
 	for (i = 0; i < CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
 		/* init low_level USB */
-		kprintf("USB%d:   ", i);
+		debug("USB%d:   ", i);
 		ret = usb_lowlevel_init(i, USB_INIT_HOST, &ctrl);
 		if (ret == -ENODEV) {	/* No such device. */
-			kprintf("Port not available.\n");
+			debug("Port not available.\n");
 			controllers_initialized++;
 			continue;
 		}
 
 		if (ret) {		/* Other error. */
-			kprintf("lowlevel init failed\n");
+			debug("lowlevel init failed\n");
 			continue;
 		}
 		/*
@@ -104,7 +104,7 @@ int usb_init(void)
 
 		controllers_initialized++;
 		start_index = dev_index;
-		kprintf("scanning bus %d for devices... ", i);
+		debug("scanning bus %d for devices... ", i);
         debug("++++HEAP++++1:0x%08x\n", dev);
 		ret = usb_alloc_new_device(ctrl, &dev);
         debug("++++HEAP++++2:0x%08x\n", dev);
@@ -120,10 +120,10 @@ int usb_init(void)
 			usb_free_device(dev->controller);
 
 		if (start_index == dev_index) {
-			kprintf("No USB Device found\n");
+			debug("No USB Device found\n");
 			continue;
 		} else {
-			kprintf("%d USB Device(s) found\n",
+			debug("%d USB Device(s) found\n",
 				dev_index - start_index);
 		}
 
@@ -133,7 +133,7 @@ int usb_init(void)
 	debug("scan end\n");
 	/* if we were not able to find at least one working bus, bail out */
 	if (controllers_initialized == 0)
-		kprintf("USB error: all controllers failed lowlevel init\n");
+		debug("USB error: all controllers failed lowlevel init\n");
 
 	return usb_started ? 0 : -ENODEV;
 }
@@ -152,7 +152,7 @@ int usb_stop(void)
 
 		for (i = 0; i < CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
 			if (usb_lowlevel_stop(i))
-				kprintf("failed to stop USB controller %d\n", i);
+				debug("failed to stop USB controller %d\n", i);
 		}
 	}
 
@@ -399,12 +399,12 @@ static int usb_parse_config(struct usb_device *dev,
 	dev->configno = cfgno;
 	head = (struct usb_descriptor_header *) &buffer[0];
 	if (head->bDescriptorType != USB_DT_CONFIG) {
-		kprintf(" ERROR: NOT USB_CONFIG_DESC %x\n",
+		debug(" ERROR: NOT USB_CONFIG_DESC %x\n",
 			head->bDescriptorType);
 		return -EINVAL;
 	}
 	if (head->bLength != USB_DT_CONFIG_SIZE) {
-		kprintf("ERROR: Invalid USB CFG length (%d)\n", head->bLength);
+		debug("ERROR: Invalid USB CFG length (%d)\n", head->bLength);
 		return -EINVAL;
 	}
 	memcpy(&dev->config, head, USB_DT_CONFIG_SIZE);
@@ -418,13 +418,13 @@ static int usb_parse_config(struct usb_device *dev,
 		switch (head->bDescriptorType) {
 		case USB_DT_INTERFACE:
 			if (head->bLength != USB_DT_INTERFACE_SIZE) {
-				kprintf("ERROR: Invalid USB IF length (%d)\n",
+				debug("ERROR: Invalid USB IF length (%d)\n",
 					head->bLength);
 				break;
 			}
 			if (index + USB_DT_INTERFACE_SIZE >
 			    dev->config.desc.wTotalLength) {
-				kprintf("USB IF descriptor overflowed buffer!\n");
+				debug("USB IF descriptor overflowed buffer!\n");
 				break;
 			}
 			if (((struct usb_interface_descriptor *) \
@@ -432,7 +432,7 @@ static int usb_parse_config(struct usb_device *dev,
 				/* this is a new interface, copy new desc */
 				ifno = dev->config.no_of_if;
 				if (ifno >= USB_MAXINTERFACES) {
-					kprintf("Too many USB interfaces!\n");
+					debug("Too many USB interfaces!\n");
 					/* try to go on with what we have */
 					return -EINVAL;
 				}
@@ -454,23 +454,23 @@ static int usb_parse_config(struct usb_device *dev,
 			break;
 		case USB_DT_ENDPOINT:
 			if (head->bLength != USB_DT_ENDPOINT_SIZE) {
-				kprintf("ERROR: Invalid USB EP length (%d)\n",
+				debug("ERROR: Invalid USB EP length (%d)\n",
 					head->bLength);
 				break;
 			}
 			if (index + USB_DT_ENDPOINT_SIZE >
 			    dev->config.desc.wTotalLength) {
-				kprintf("USB EP descriptor overflowed buffer!\n");
+				debug("USB EP descriptor overflowed buffer!\n");
 				break;
 			}
 			if (ifno < 0) {
-				kprintf("Endpoint descriptor out of order!\n");
+				debug("Endpoint descriptor out of order!\n");
 				break;
 			}
 			epno = dev->config.if_desc[ifno].no_of_ep;
 			if_desc = &dev->config.if_desc[ifno];
 			if (epno >= USB_MAXENDPOINTS) {
-				kprintf("Interface %d has too many endpoints!\n",
+				debug("Interface %d has too many endpoints!\n",
 					if_desc->desc.bInterfaceNumber);
 				return -EINVAL;
 			}
@@ -491,17 +491,17 @@ static int usb_parse_config(struct usb_device *dev,
 			break;
 		case USB_DT_SS_ENDPOINT_COMP:
 			if (head->bLength != USB_DT_SS_EP_COMP_SIZE) {
-				kprintf("ERROR: Invalid USB EPC length (%d)\n",
+				debug("ERROR: Invalid USB EPC length (%d)\n",
 					head->bLength);
 				break;
 			}
 			if (index + USB_DT_SS_EP_COMP_SIZE >
 			    dev->config.desc.wTotalLength) {
-				kprintf("USB EPC descriptor overflowed buffer!\n");
+				debug("USB EPC descriptor overflowed buffer!\n");
 				break;
 			}
 			if (ifno < 0 || epno < 0) {
-				kprintf("EPC descriptor out of order!\n");
+				debug("EPC descriptor out of order!\n");
 				break;
 			}
 			if_desc = &dev->config.if_desc[ifno];
@@ -594,10 +594,10 @@ int usb_get_configuration_len(struct usb_device *dev, int cfgno)
 	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 9);
 	if (result < 9) {
 		if (result < 0)
-			kprintf("unable to get descriptor, error %lX\n",
+			debug("unable to get descriptor, error %lX\n",
 				dev->status);
 		else
-			kprintf("config descriptor too short " \
+			debug("config descriptor too short " \
 				"(expected %i, got %i)\n", 9, result);
 		return -EIO;
 	}
@@ -653,7 +653,7 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate)
 		}
 	}
 	if (!if_face) {
-		kprintf("selecting invalid interface %d", interface);
+		debug("selecting invalid interface %d", interface);
 		return -EINVAL;
 	}
 	/*
@@ -895,7 +895,7 @@ int usb_alloc_new_device(struct udevice *controller, struct usb_device **devp)
 	int i;
 	debug("New Device %d\n", dev_index);
 	if (dev_index == USB_MAX_DEVICE) {
-		kprintf("ERROR, too many USB Devices, max=%d\n", USB_MAX_DEVICE);
+		debug("ERROR, too many USB Devices, max=%d\n", USB_MAX_DEVICE);
 		return -ENOSPC;
 	}
 	/* default Address is 0, real addresses start with 1 */
@@ -962,11 +962,11 @@ static int get_descriptor_len(struct usb_device *dev, int len, int expect_len)
     debug("finish usb_get_descriptor, err:%d\n", err);
 	if (err < expect_len) {
 		if (err < 0) {
-			kprintf("unable to get device descriptor (error=%d)\n",
+			debug("unable to get device descriptor (error=%d)\n",
 				err);
 			return err;
 		} else {
-			kprintf("USB device descriptor short read (expected %i, got %i)\n",
+			debug("USB device descriptor short read (expected %i, got %i)\n",
 				expect_len, err);
 			return -EIO;
 		}
@@ -1044,7 +1044,7 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 		dev->maxpacketsize = PACKET_SIZE_64;
 		break;
 	default:
-		kprintf("usb_new_device: invalid max packet size\n");
+		debug("usb_new_device: invalid max packet size\n");
 		return -EIO;
 	}
 
@@ -1064,7 +1064,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	 */
 	err = usb_alloc_device(dev);
 	if (err) {
-		kprintf("Cannot allocate device context to get SLOT_ID\n");
+		debug("Cannot allocate device context to get SLOT_ID\n");
 		return err;
 	}
     debug("before setup descriptor\n");
@@ -1085,7 +1085,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
     debug("after hub reset\n");
 
 	if (err < 0) {
-		kprintf("\n      USB device not accepting new address " \
+		debug("\n      USB device not accepting new address " \
 			"(error=%lX)\n", dev->status);
 		return err;
 	}
@@ -1128,7 +1128,7 @@ int usb_select_config(struct usb_device *dev)
 			err = usb_get_configuration_no(dev, 0, tmpbuf, err);
 	}
 	if (err < 0) {
-		kprintf("usb_new_device: Cannot read configuration, " \
+		debug("usb_new_device: Cannot read configuration, " \
 		       "skipping device %04x:%04x\n",
 		       dev->descriptor.idVendor, dev->descriptor.idProduct);
 		free(tmpbuf);
@@ -1144,7 +1144,7 @@ int usb_select_config(struct usb_device *dev)
 	 */
 	err = usb_set_configuration(dev, dev->config.desc.bConfigurationValue);
 	if (err < 0) {
-		kprintf("failed to set default configuration " \
+		debug("failed to set default configuration " \
 			"len %d, status %lX\n", dev->act_len, dev->status);
 		return err;
 	}
@@ -1284,7 +1284,7 @@ void usb_find_usb2_hub_address_port(struct usb_device *udev,
 		struct udevice *dev = parent;
 
 		if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB) {
-			kprintf("Error: Cannot find high speed parent of usb-1 device\n");
+			debug("Error: Cannot find high speed parent of usb-1 device\n");
 			*hub_address = 0;
 			*hub_port = 0;
 			return;
@@ -1311,7 +1311,7 @@ void usb_find_usb2_hub_address_port(struct usb_device *udev,
 			return;
 		}
 
-	kprintf("Error: Cannot find high speed parent of usb-1 device\n");
+	debug("Error: Cannot find high speed parent of usb-1 device\n");
 	*hub_address = 0;
 	*hub_port = 0;
 }

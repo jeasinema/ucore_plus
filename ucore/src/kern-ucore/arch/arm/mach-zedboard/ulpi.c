@@ -42,7 +42,7 @@ static int ulpi_integrity_check(struct ulpi_viewport *ulpi_vp)
 
 		val = ulpi_read(ulpi_vp, &ulpi->scratch);
 		if (val != tval) {
-			kprintf("ULPI integrity check failed\n");
+			debug("ULPI integrity check failed\n");
 			return val;
 		}
 	}
@@ -84,7 +84,7 @@ int ulpi_select_transceiver(struct ulpi_viewport *ulpi_vp, unsigned speed)
 		tspeed = speed;
 		break;
 	default:
-		kprintf("ULPI: %s: wrong transceiver speed specified: %u, "
+		debug("ULPI: %s: wrong transceiver speed specified: %u, "
 			"falling back to full speed\n", __func__, speed);
 	}
 
@@ -157,7 +157,7 @@ int ulpi_opmode_sel(struct ulpi_viewport *ulpi_vp, unsigned opmode)
 		topmode = opmode;
 		break;
 	default:
-		kprintf("ULPI: %s: wrong OpMode specified: %u, "
+		debug("ULPI: %s: wrong OpMode specified: %u, "
 			"falling back to OpMode Normal\n", __func__, opmode);
 	}
 
@@ -178,7 +178,7 @@ int ulpi_serial_mode_enable(struct ulpi_viewport *ulpi_vp, unsigned smode)
 	case ULPI_IFACE_3_PIN_SERIAL_MODE:
 		break;
 	default:
-		kprintf("ULPI: %s: unrecognized Serial Mode specified: %u\n",
+		debug("ULPI: %s: unrecognized Serial Mode specified: %u\n",
 			__func__, smode);
 		return ULPI_ERROR;
 	}
@@ -193,7 +193,7 @@ int ulpi_suspend(struct ulpi_viewport *ulpi_vp)
 	err = ulpi_write(ulpi_vp, &ulpi->function_ctrl_clear,
 			ULPI_FC_SUSPENDM);
 	if (err)
-		kprintf("ULPI: %s: failed writing the suspend bit\n", __func__);
+		debug("ULPI: %s: failed writing the suspend bit\n", __func__);
 
 	return err;
 }
@@ -223,7 +223,7 @@ static int __ulpi_reset_wait(struct ulpi_viewport *ulpi_vp)
 		udelay(1);
 	}
 
-	kprintf("ULPI: %s: reset timed out\n", __func__);
+	debug("ULPI: %s: reset timed out\n", __func__);
 
 	return ULPI_ERROR;
 }
@@ -237,7 +237,7 @@ int ulpi_reset(struct ulpi_viewport *ulpi_vp)
 	err = ulpi_write(ulpi_vp,
 			&ulpi->function_ctrl_set, ULPI_FC_RESET);
 	if (err) {
-		kprintf("ULPI: %s: failed writing reset bit\n", __func__);
+		debug("ULPI: %s: failed writing reset bit\n", __func__);
 		return err;
 	}
 

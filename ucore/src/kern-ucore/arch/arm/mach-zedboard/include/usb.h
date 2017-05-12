@@ -245,6 +245,8 @@ int usb_host_eth_scan(int mode);
 
 int drv_usb_kbd_init(void);
 int usb_kbd_deregister(int force);
+int usb_get_keyboard();
+int usb_kbd_getc(int kbd_id);
 
 #endif
 /* routines */
